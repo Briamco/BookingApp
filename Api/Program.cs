@@ -1,6 +1,10 @@
 using BookingApp.Application.Intefaces.Services;
+using BookingApp.Domain.Interface;
 using BookingApp.Infrastructure.BackgroundJobs;
+using BookingApp.Infrastructure.Data;
+using BookingApp.Infrastructure.Respositories;
 using BookingApp.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +14,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// DB Connection
+var connectionString = builder.Configuration["DB_CONNECTION_STRING"];
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString)
+);
+
+// Add Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IBlockedRepository, BlockedDateRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Add resend
 builder.Services.AddHttpClient<ResendClient>();
