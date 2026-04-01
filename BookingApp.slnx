@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/BookingApp.Tests.csproj" />
+  </Folder>
   <Project Path="Api/BookingApp.Api.csproj" />
   <Project Path="Application/BookingApp.Application.csproj" />
   <Project Path="Domain/BookingApp.Domain.csproj" />
