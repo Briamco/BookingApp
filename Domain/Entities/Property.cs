@@ -7,6 +7,9 @@ public class Property : Entity
   public string Description { get; set; } = string.Empty;
   public decimal Latitude { get; set; }
   public decimal Longitude { get; set; }
+  public string City { get; set; } = string.Empty;
+  public string State { get; set; } = string.Empty;
+  public string Country { get; set; } = string.Empty;
   public double NightPrice { get; set; }
   public int Capacity { get; set; }
 
