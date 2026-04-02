@@ -40,7 +40,7 @@ public class AuthController(AuthService service) : ControllerBase
     }
   }
 
-  [HttpPost]
+  [HttpPost("confirm")]
   public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
   {
     try
