@@ -9,7 +9,7 @@ namespace BookingApp.Tests;
 public class ResendEmailServiceTests
 {
   [Fact]
-  public async Task SendEmailAsync()
+  public async Task SendEmailAsync_ShouldBuildAndSendMessage()
   {
     var mockResendClient = new Mock<IResend>();
 
@@ -38,7 +38,34 @@ public class ResendEmailServiceTests
           msg.From.Email == "onboarding@resend.dev"
       ),
       default
-    ));
+    ), Times.Once);
+
+  }
+
+  [Fact]
+  public async Task SendEmailAsync_WhenResendThrows_ShouldRethrow()
+  {
+    var mockResendClient = new Mock<IResend>();
+    mockResendClient
+      .Setup(r => r.EmailSendAsync(It.IsAny<EmailMessage>(), default))
+      .ThrowsAsync(new InvalidOperationException("provider down"));
+
+    var mockConfig = new Mock<IConfiguration>();
+    mockConfig.Setup(c => c["RESEND_FROM_EMAIL"]).Returns("onboarding@resend.dev");
+
+    var mockLogger = new Mock<ILogger<ResendEmailService>>();
+
+    var emailService = new ResendEmailService(
+      mockResendClient.Object,
+      mockConfig.Object,
+      mockLogger.Object
+      );
+
+    await Assert.ThrowsAsync<InvalidOperationException>(() =>
+      emailService.SendEmailAsync("user@test.com", "subject", "<p>body</p>")
+    );
+
+    mockResendClient.Verify(r => r.EmailSendAsync(It.IsAny<EmailMessage>(), default), Times.Once);
 
   }
 }
