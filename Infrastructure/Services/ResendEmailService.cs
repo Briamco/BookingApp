@@ -40,6 +40,7 @@ public class ResendEmailService : IEmailService
     catch (Exception ex)
     {
       _logger.LogError(ex, $"[RESEND ERROR] Email not sended to {to}.");
+      throw;
     }
   }
 }

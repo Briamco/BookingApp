@@ -45,7 +45,10 @@ builder.Services.Configure<ResendClientOptions>(o =>
 builder.Services.AddTransient<IResend, ResendClient>();
 
 // Add Email scope
-builder.Services.AddScoped<IEmailService, ResendEmailService>();
+builder.Services.AddScoped<ResendEmailService>();
+builder.Services.AddScoped<GmailEmailService>();
+
+builder.Services.AddScoped<IEmailService, FallbackEmailService>();
 
 // Add Email Queue
 var emailQueue = new EmailQueue();
