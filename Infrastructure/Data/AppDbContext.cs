@@ -20,6 +20,33 @@ public class AppDbContext : DbContext
     base.OnModelCreating(modelBuilder);
 
     modelBuilder.Entity<User>()
+      .ToTable("Users");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.FirstName)
+      .HasColumnName("first_name");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.LastName)
+      .HasColumnName("last_name");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.Password)
+      .HasColumnName("password_hash");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.IsConfirmed)
+      .HasColumnName("is_confirmed");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.ConfirmationToken)
+      .HasColumnName("confirmation_token");
+
+    modelBuilder.Entity<User>()
+      .Property(u => u.TokenExpiresAt)
+      .HasColumnName("token_expires_at");
+
+    modelBuilder.Entity<User>()
       .HasIndex(u => u.Email)
       .IsUnique();
 

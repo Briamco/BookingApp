@@ -1,5 +1,5 @@
-create database BookingDb;
-use BookingDb;
+create database BookingDb
+use BookingDb
 
 create table Users
 (
@@ -28,6 +28,9 @@ create table Properties
 	[description] nvarchar(max) not null,
 	latitude decimal(8,6) not null,
 	longitude decimal(9,6) not null,
+	city nvarchar(100) not null,
+	[state] nvarchar(100) not null,
+	country nvarchar(100) not null,
 	night_price money not null
 		constraint ck_property_night_price check (night_price > 0),
 	
@@ -64,7 +67,7 @@ create table Reservations
 	constraint fk_reservation_guest foreign key (guest_id) references Users(id),
 )
 
-create table BloquedDate
+create table BloquedDates
 (
 	id int primary key identity(1,1),
 	property_id int not null,

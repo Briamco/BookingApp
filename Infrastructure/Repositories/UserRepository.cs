@@ -23,13 +23,27 @@ public class UserRepository : IUserRepository
 
   public async Task AddAsync(User user)
   {
-    await _context.Users.AddAsync(user);
-    await _context.SaveChangesAsync();
+    try
+    {
+      await _context.Users.AddAsync(user);
+      await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException ex)
+    {
+      throw new Exception(ex.InnerException?.Message ?? ex.Message, ex);
+    }
   }
 
   public async Task UpdateAsync(User user)
   {
-    _context.Users.Update(user);
-    await _context.SaveChangesAsync();
+    try
+    {
+      _context.Users.Update(user);
+      await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException ex)
+    {
+      throw new Exception(ex.InnerException?.Message ?? ex.Message, ex);
+    }
   }
 }

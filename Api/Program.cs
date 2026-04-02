@@ -1,16 +1,23 @@
+using System.Text;
+using BookingApp.Application.Intefaces;
 using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Interface;
 using BookingApp.Infrastructure.BackgroundJobs;
 using BookingApp.Infrastructure.Data;
 using BookingApp.Infrastructure.Respositories;
 using BookingApp.Infrastructure.Services;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Env.Load();
+builder.Configuration.AddEnvironmentVariables();
 
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -48,16 +55,58 @@ builder.Services.AddSingleton(emailQueue);
 // Add Email BackgroundWorker
 builder.Services.AddHostedService<EmailBackgroundWorker>();
 
+// Add PasswordHasher and JWTProvider scope
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+
+var jwtIssuer = builder.Configuration["JWT_ISSUER"];
+var jwtSecret = builder.Configuration["JWT_SECRET"];
+
+if (string.IsNullOrWhiteSpace(jwtIssuer) || string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "JWT configuration is missing. Set JWT_ISSUER and JWT_SECRET in appsettings or environment variables."
+    );
+}
+
+// Add JWT Middleware
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSecret)
+            )
+        };
+    }
+    );
+
+// Add AuthService Scope
+builder.Services.AddScoped<AuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
