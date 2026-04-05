@@ -94,6 +94,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Add AuthService Scope
 builder.Services.AddScoped<AuthService>();
 
+// Add Image Storage Scope
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -108,6 +112,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
