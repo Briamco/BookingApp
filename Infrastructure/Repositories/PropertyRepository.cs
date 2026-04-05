@@ -16,6 +16,7 @@ public class PropertyRepository : IPropertyRepository
   {
     return await _context.Properties
       .Include(p => p.Images)
+      .Include(p => p.Location)
       .FirstOrDefaultAsync(p => p.Id == id);
   }
 
