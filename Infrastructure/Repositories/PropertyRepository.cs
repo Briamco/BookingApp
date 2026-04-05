@@ -25,9 +25,9 @@ public class PropertyRepository : IPropertyRepository
 
     if (!string.IsNullOrEmpty(location))
       query = query.Where(p =>
-        p.City.Contains(location) ||
-        p.State.Contains(location) ||
-        p.Country.Contains(location) ||
+        p.Location.City.Contains(location) ||
+        p.Location.State.Contains(location) ||
+        p.Location.Country.Contains(location) ||
         p.Title.Contains(location) ||
         p.Description.Contains(location)
       );

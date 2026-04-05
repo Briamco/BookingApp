@@ -20,6 +20,14 @@ create table Users
 
 )
 
+create table Locations 
+(
+	id int primary key identity(1,1),
+	city nvarchar(100) not null,
+	[state] nvarchar(100) not null,
+	country nvarchar(100) not null
+)
+
 create table Properties
 (
 	id int primary key identity(1,1),
@@ -28,16 +36,15 @@ create table Properties
 	[description] nvarchar(max) not null,
 	latitude decimal(8,6) not null,
 	longitude decimal(9,6) not null,
-	city nvarchar(100) not null,
-	[state] nvarchar(100) not null,
-	country nvarchar(100) not null,
+	location_id int not null,
 	night_price money not null
 		constraint ck_property_night_price check (night_price > 0),
 	
 	capacity int not null
 		constraint ck_property_capacity check (capacity > 0)
 
-	constraint fk_property_host foreign key ([host_id]) references Users(id)
+	constraint fk_property_host foreign key ([host_id]) references Users(id),
+	constraint fk_property_location foreign key (location_id) references Locations(id)
 )
 
 create table Images
