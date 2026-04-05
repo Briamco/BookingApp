@@ -98,6 +98,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
 
+//Add User Scope
+builder.Services.AddScoped<IUserService, UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
