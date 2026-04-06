@@ -101,6 +101,9 @@ builder.Services.AddScoped<IImageStorageService, LocalImageStorageService>();
 //Add User Scope
 builder.Services.AddScoped<IUserService, UserService>();
 
+//Add Property Scope
+builder.Services.AddScoped<PropertyService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

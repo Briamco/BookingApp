@@ -20,9 +20,9 @@ public class PropertyRepository : IPropertyRepository
       .FirstOrDefaultAsync(p => p.Id == id);
   }
 
-  public async Task<IEnumerable<Property>> SearchAvaibleAsync(string? location, DateOnly startDate, DateOnly endDate, int capacity, double? maxPrice)
+  public async Task<IEnumerable<Property>> SearchAvaibleAsync(string? location, decimal? maxPrice, int? capacity)
   {
-    var query = _context.Properties.AsQueryable();
+    var query = _context.Properties.Include(p => p.Location).AsQueryable();
 
     if (!string.IsNullOrEmpty(location))
       query = query.Where(p =>
@@ -38,11 +38,8 @@ public class PropertyRepository : IPropertyRepository
 
     query = query.Where(p =>
       !p.Reservations.Any(
-        r => r.Status == ReservationStatus.Completed &&
-        r.StartDate < endDate && r.EndDate > startDate
-        ) &&
-        !p.BlockedDates.Any(b =>
-          b.StartDate < endDate && b.EndDate > startDate
+        r => r.Status == ReservationStatus.Completed
+        // r.StartDate < endDate && r.EndDate > startDate
         )
     );
 
