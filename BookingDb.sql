@@ -74,7 +74,7 @@ create table Reservations
 	constraint fk_reservation_guest foreign key (guest_id) references Users(id),
 )
 
-create table BloquedDates
+create table BlockedDates
 (
 	id int primary key identity(1,1),
 	property_id int not null,
