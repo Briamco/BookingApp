@@ -15,6 +15,5 @@ public class PropertyResponse
   public string City { get; set; } = string.Empty;
   public string State { get; set; } = string.Empty;
   public string Country { get; set; } = string.Empty;
-  public ICollection<Reservation> Reservations { get; set; } = [];
   public ICollection<Image> Images { get; set; } = [];
 }

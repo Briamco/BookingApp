@@ -24,7 +24,6 @@ public class PropertyRepository : IPropertyRepository
   {
     var query = _context.Properties
       .Include(p => p.Location)
-      .Include(p => p.Reservations)
       .Include(p => p.Images)
       .AsQueryable();
 
