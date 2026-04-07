@@ -56,6 +56,22 @@ public class PropertyController(PropertyService service, IUserService userServic
     }
   }
 
+  [HttpGet("{id}")]
+  [AllowAnonymous]
+  public async Task<IActionResult> GetById(int id)
+  {
+    try
+    {
+      var property = await _service.GetPropertyByIdAsync(id);
+
+      return Ok(property);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
   [HttpPut("{id}")]
   [Authorize]
   public async Task<IActionResult> UpdateProperty(int id, [FromBody] CreatePropertyRequest request)
