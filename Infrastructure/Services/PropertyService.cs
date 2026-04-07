@@ -11,9 +11,9 @@ public class PropertyService
 
   public PropertyService(IPropertyRepository propertyRepo) => _propertyRepo = propertyRepo;
 
-  public async Task<IEnumerable<PropertyResponse>> SearchPropertiesAsync(string? location, decimal? maxPrice, int? minCapacity)
+  public async Task<IEnumerable<PropertyResponse>> SearchPropertiesAsync(string? location, decimal? maxPrice, int? minCapacity, DateOnly? startDate, DateOnly? endDate)
   {
-    var properties = await _propertyRepo.SearchAvaibleAsync(location, maxPrice, minCapacity);
+    var properties = await _propertyRepo.SearchAvaibleAsync(location, maxPrice, minCapacity, startDate, endDate);
 
     return properties.Select(p => new PropertyResponse
     {

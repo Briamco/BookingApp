@@ -18,11 +18,13 @@ public class PropertyController(PropertyService service, IUserService userServic
   public async Task<IActionResult> GetProperties(
         [FromQuery] string? location,
         [FromQuery] decimal? maxPrice,
-        [FromQuery] int? minCapacity)
+        [FromQuery] int? minCapacity,
+        [FromQuery] DateOnly? startDate,
+        [FromQuery] DateOnly? endDate)
   {
     try
     {
-      var properties = await _service.SearchPropertiesAsync(location, maxPrice, minCapacity);
+      var properties = await _service.SearchPropertiesAsync(location, maxPrice, minCapacity, startDate, endDate);
 
       return Ok(properties);
     }
