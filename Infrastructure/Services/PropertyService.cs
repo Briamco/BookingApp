@@ -27,7 +27,9 @@ public class PropertyService
       Longitude = p.Longitude,
       City = p.Location.City,
       State = p.Location.State,
-      Country = p.Location.Country
+      Country = p.Location.Country,
+      Reservations = p.Reservations,
+      Images = p.Images
     });
   }
 
