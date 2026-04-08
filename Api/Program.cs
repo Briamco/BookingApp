@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using BookingApp.Application.Intefaces;
 using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Interface;
@@ -18,7 +19,10 @@ Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
+    );
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -55,8 +59,9 @@ var emailQueue = new EmailQueue();
 builder.Services.AddSingleton<IEmailQueue>(emailQueue);
 builder.Services.AddSingleton(emailQueue);
 
-// Add Email BackgroundWorker
+// Add BackgroundWorker
 builder.Services.AddHostedService<EmailBackgroundWorker>();
+builder.Services.AddHostedService<ReservationCompletionWorker>();
 
 // Add PasswordHasher and JWTProvider scope
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -103,6 +108,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 //Add Property Scope
 builder.Services.AddScoped<PropertyService>();
+
+// Add Reservation Scope
+builder.Services.AddScoped<ReservationService>();
 
 var app = builder.Build();
 

@@ -1,8 +1,8 @@
 namespace BookingApp.Domain.Enums;
 
-public enum ReservationStatus
+public static class ReservationStatus
 {
-  Confimed,
-  Canceled,
-  Completed
+  public const string Confimed = "Confirmed";
+  public const string Canceled = "Canceled";
+  public const string Completed = "Completed";
 }

@@ -27,6 +27,13 @@ public class ReservationRepository : IReservationRepository
     );
   }
 
+  public async Task<IEnumerable<Reservation>> GetReservationsToCompleteAsync(DateOnly currentDate)
+  {
+    return await _context.Reservations
+            .Where(r => r.Status == ReservationStatus.Confimed && r.EndDate < currentDate)
+            .ToListAsync();
+  }
+
   public async Task AddAsync(Reservation reservation)
   {
     await _context.Reservations.AddAsync(reservation);

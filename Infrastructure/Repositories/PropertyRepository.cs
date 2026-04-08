@@ -19,6 +19,7 @@ public class PropertyRepository : IPropertyRepository
       .Include(p => p.Location)
       .Include(p => p.BlockedDates)
       .Include(p => p.Reservations)
+      .AsSplitQuery()
       .FirstOrDefaultAsync(p => p.Id == id);
   }
 

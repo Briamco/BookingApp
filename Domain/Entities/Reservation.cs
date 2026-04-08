@@ -13,7 +13,7 @@ public class Reservation : Entity
   public DateOnly StartDate { get; set; }
   [Column("end_date")]
   public DateOnly EndDate { get; set; }
-  public ReservationStatus Status { get; set; } = ReservationStatus.Confimed;
+  public string Status { get; set; } = ReservationStatus.Confimed;
   [Column("created_at")]
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -2,16 +2,18 @@ using BookingApp.Application.DTOs;
 using BookingApp.Application.Intefaces;
 using BookingApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PropertyController(PropertyService service, IUserService userService) : ControllerBase
+public class PropertyController(PropertyService service, IUserService userService, ReservationService reservationService) : ControllerBase
 {
   private readonly PropertyService _service = service;
   private readonly IUserService _userService = userService;
+  private readonly ReservationService _reservationService = reservationService;
 
   [HttpGet]
   [AllowAnonymous]
@@ -107,6 +109,27 @@ public class PropertyController(PropertyService service, IUserService userServic
     catch (UnauthorizedAccessException ex)
     {
       return Forbid(ex.Message);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
+  [HttpPost("{propertyId}/reservate")]
+  [Authorize]
+  public async Task<IActionResult> CreateReservation(int propertyId, [FromBody] CreateReservationRequest request)
+  {
+    try
+    {
+      var currentUserId = _userService.GetUserId();
+      var newReservation = await _reservationService.CreateReservationAsync(propertyId, currentUserId, request);
+
+      return CreatedAtAction(
+        nameof(CreateReservation),
+        new { id = newReservation.Id },
+        new { message = "Reservation Creation Success.", propertyId = newReservation.Id }
+      );
     }
     catch (Exception ex)
     {
