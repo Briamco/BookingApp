@@ -21,6 +21,27 @@ public class Reservation : Entity
   public Property Property { get; set; } = null!;
   [ForeignKey("GuestId")]
   public User Guest { get; set; } = null!;
-
   public Review? Review { get; set; }
+
+  public void Cancel()
+  {
+    if (Status == ReservationStatus.Completed)
+      throw new InvalidOperationException("Reservation is completed");
+
+    if (Status == ReservationStatus.Canceled)
+      throw new InvalidOperationException("Reservation was canceled");
+
+    Status = ReservationStatus.Canceled;
+  }
+
+  public void Complete()
+  {
+    if (Status == ReservationStatus.Canceled)
+      throw new InvalidCastException("Reservation is canceled");
+
+    if (Status == ReservationStatus.Completed)
+      throw new InvalidCastException("Reservation was completed");
+
+    Status = ReservationStatus.Completed;
+  }
 }
