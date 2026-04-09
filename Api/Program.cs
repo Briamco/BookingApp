@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using BookingApp.Api.Middlewares;
 using BookingApp.Application.Intefaces;
 using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Interface;
@@ -9,6 +10,7 @@ using BookingApp.Infrastructure.Respositories;
 using BookingApp.Infrastructure.Services;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Resend;
@@ -118,6 +120,18 @@ builder.Services.AddScoped<BlockedDateService>();
 // Add Review Scope
 builder.Services.AddScoped<ReviewService>();
 
+// Add WebSocket Connection Manager Scope
+builder.Services.AddSingleton<IWebSocketConnectionManager, WebSocketConnectionManager>();
+
+// Add Notification Service Scope
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Add WebSocket support
+builder.Services.AddWebSockets(options =>
+{
+    options.KeepAliveInterval = TimeSpan.FromSeconds(120);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -131,9 +145,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
-
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
+// Add WebSocket middleware
+app.UseWebSockets();
+app.UseMiddleware<BookingApp.Api.Middlewares.WebSocketMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

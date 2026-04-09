@@ -1,0 +1,65 @@
+### Notification API Examples
+
+@apiUrl = https://localhost:5001/api
+
+### Get user notifications (all)
+GET {{apiUrl}}/notification/user/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get user notifications (only unread)
+GET {{apiUrl}}/notification/user/550e8400-e29b-41d4-a716-446655440000?onlyUnread=true
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Get specific notification
+GET {{apiUrl}}/notification/1
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Create a push notification
+POST {{apiUrl}}/notification
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Reservation Confirmed",
+  "message": "Your reservation has been confirmed",
+  "type": 1
+}
+
+### Create an email notification
+POST {{apiUrl}}/notification
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Reservation Update",
+  "message": "Your reservation details have been updated",
+  "type": 0
+}
+
+### Create a notification (both push and email)
+POST {{apiUrl}}/notification
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Important Update",
+  "message": "An important update regarding your booking",
+  "type": 2
+}
+
+### Mark notification as read
+PUT {{apiUrl}}/notification/1/read
+Authorization: Bearer YOUR_JWT_TOKEN
+
+### Connect to WebSocket (push notifications)
+# Use WebSocket client to connect to: wss://localhost:5001/api/notification/ws/550e8400-e29b-41d4-a716-446655440000
+# The connection will receive push notifications in JSON format:
+# {
+#   "type": "notification",
+#   "title": "...",
+#   "message": "...",
+#   "timestamp": "2026-04-09T..."
+# }

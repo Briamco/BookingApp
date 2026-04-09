@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using BookingApp.Application.Intefaces;
+using BookingApp.Domain.Entities;
+using BookingApp.Domain.Interface;
 using Microsoft.AspNetCore.Http;
 
 namespace BookingApp.Infrastructure.Services;
@@ -7,10 +9,17 @@ namespace BookingApp.Infrastructure.Services;
 public class UserService : IUserService
 {
   private readonly IHttpContextAccessor _httpContextAccesor;
+  private readonly IUserRepository _userRepo;
 
-  public UserService(IHttpContextAccessor httpContextAccessor)
+  public UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo)
   {
     _httpContextAccesor = httpContextAccessor;
+    _userRepo = userRepo;
+  }
+
+  public async Task<User?> GetUserByIdAsync(Guid id)
+  {
+    return await _userRepo.GetByIdAsync(id);
   }
 
   public Guid GetUserId()
