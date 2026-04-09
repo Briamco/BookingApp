@@ -148,12 +148,12 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Add WebSocket middleware
 app.UseWebSockets();
 app.UseMiddleware<BookingApp.Api.Middlewares.WebSocketMiddleware>();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 

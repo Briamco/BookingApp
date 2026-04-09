@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.WebSockets;
 using BookingApp.Application.DTOs;
 using BookingApp.Application.Intefaces;
 using BookingApp.Application.Intefaces.Services;
@@ -15,21 +13,15 @@ namespace BookingApp.Api.Controllers;
 public class NotificationController : ControllerBase
 {
   private readonly INotificationService _notificationService;
-  private readonly IWebSocketConnectionManager _webSocketManager;
   private readonly IUserService _userService;
-  private readonly ILogger<NotificationController> _logger;
 
   public NotificationController(
       INotificationService notificationService,
-      IWebSocketConnectionManager webSocketManager,
-      IUserService userService,
-      ILogger<NotificationController> logger
+      IUserService userService
   )
   {
     _notificationService = notificationService;
-    _webSocketManager = webSocketManager;
     _userService = userService;
-    _logger = logger;
   }
 
   [HttpGet("user/me")]
@@ -56,8 +48,9 @@ public class NotificationController : ControllerBase
   [HttpGet("{id}")]
   public async Task<ActionResult<NotificationResponse>> GetNotification([FromRoute] int id)
   {
+    var userId = _userService.GetUserId();
     var notification = await _notificationService.GetNotificationByIdAsync(id);
-    if (notification == null)
+    if (notification == null || notification.UserId != userId)
       return NotFound("Notification not found");
 
     return Ok(new NotificationResponse
@@ -79,6 +72,9 @@ public class NotificationController : ControllerBase
   {
     if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Message))
       return BadRequest("Title and message are required");
+
+    if (!Enum.IsDefined(typeof(NotificationType), request.Type))
+      return BadRequest("Invalid notification type");
 
     var userId = _userService.GetUserId();
     var type = (NotificationType)request.Type;
@@ -108,58 +104,12 @@ public class NotificationController : ControllerBase
   [HttpPut("{id}/read")]
   public async Task<ActionResult> MarkAsRead([FromRoute] int id)
   {
+    var userId = _userService.GetUserId();
     var notification = await _notificationService.GetNotificationByIdAsync(id);
-    if (notification == null)
+    if (notification == null || notification.UserId != userId)
       return NotFound("Notification not found");
 
     await _notificationService.MarkAsReadAsync(id);
     return NoContent();
-  }
-
-  [HttpGet("ws")]
-  public async Task WebSocketConnection()
-  {
-    var userId = _userService.GetUserId();
-
-    if (HttpContext.WebSockets.IsWebSocketRequest)
-    {
-      try
-      {
-        using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        _webSocketManager.AddConnection(userId, webSocket);
-
-        // Keep the connection open and listen for messages
-        var buffer = new byte[1024 * 4];
-        WebSocketReceiveResult result = await webSocket.ReceiveAsync(
-            new ArraySegment<byte>(buffer),
-            CancellationToken.None
-        );
-
-        while (!result.CloseStatus.HasValue)
-        {
-          result = await webSocket.ReceiveAsync(
-              new ArraySegment<byte>(buffer),
-              CancellationToken.None
-          );
-        }
-
-        await webSocket.CloseAsync(
-            result.CloseStatus.Value,
-            result.CloseStatusDescription,
-            CancellationToken.None
-        );
-
-        _webSocketManager.RemoveConnection(userId);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, $"WebSocket error for user {userId}");
-        _webSocketManager.RemoveConnection(userId);
-      }
-    }
-    else
-    {
-      HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-    }
   }
 }

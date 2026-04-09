@@ -43,7 +43,7 @@ public class AuthServiceTests
   [Fact]
   public async Task RegisterAsync_WhenRequestIsValid_ShouldPersistUserAndQueueConfirmationEmail()
   {
-    var (service, userRepository, passwordHasher, _, emailQueue) = BuildAuthService();
+    var (service, userRepository, passwordHasher, _, notificationService) = BuildAuthService();
 
     var request = BuildRegisterRequest();
 
@@ -65,17 +65,19 @@ public class AuthServiceTests
 
     Assert.Equal("User register. Please check your mail for confirm your account.", result);
     Assert.NotNull(addedUser);
+    Assert.NotEqual(Guid.Empty, addedUser!.Id);
     Assert.Equal(request.Email, addedUser!.Email);
     Assert.Equal("hashed-password", addedUser.Password);
     Assert.False(string.IsNullOrWhiteSpace(addedUser.ConfirmationToken));
     Assert.NotNull(addedUser.TokenExpiresAt);
 
-    emailQueue.Verify(q => q.EnqueueEmail(
-      request.Email,
+    notificationService.Verify(n => n.CreateNotificationAsync(
+      addedUser.Id,
       "Confirm your account",
       It.Is<string>(body =>
         body.Contains("/auth/confirm?token=") &&
-        body.Contains(addedUser.ConfirmationToken!))),
+        body.Contains(addedUser.ConfirmationToken!)),
+      Domain.Enums.NotificationType.Email),
       Times.Once);
   }
 
@@ -261,12 +263,12 @@ public class AuthServiceTests
     Mock<IUserRepository> userRepository,
     Mock<IPasswordHasher> passwordHasher,
     Mock<IJwtProvider> jwtProvider,
-    Mock<IEmailQueue> emailQueue) BuildAuthService()
+    Mock<INotificationService> notificationService) BuildAuthService()
   {
     var userRepository = new Mock<IUserRepository>();
     var passwordHasher = new Mock<IPasswordHasher>();
     var jwtProvider = new Mock<IJwtProvider>();
-    var emailQueue = new Mock<IEmailQueue>();
+    var notificationService = new Mock<INotificationService>();
     var configuration = new Mock<IConfiguration>();
     configuration.Setup(c => c["FRONTEND_URL"]).Returns("http://localhost:3000");
 
@@ -274,10 +276,10 @@ public class AuthServiceTests
       userRepository.Object,
       passwordHasher.Object,
       jwtProvider.Object,
-      emailQueue.Object,
+      notificationService.Object,
       configuration.Object
     );
 
-    return (service, userRepository, passwordHasher, jwtProvider, emailQueue);
+    return (service, userRepository, passwordHasher, jwtProvider, notificationService);
   }
 }

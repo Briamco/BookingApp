@@ -13,20 +13,20 @@ public class AuthService
   private readonly IUserRepository _userRepository;
   private readonly IPasswordHasher _passwordHasher;
   private readonly IJwtProvider _jwtProvider;
-  private readonly IEmailQueue _emailQueue;
+  private readonly INotificationService _notificationService;
   private readonly IConfiguration _configuration;
 
   public AuthService(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     IJwtProvider jwtProvider,
-    IEmailQueue emailQueue,
+    INotificationService notificationService,
     IConfiguration configuration)
   {
     _userRepository = userRepository;
     _passwordHasher = passwordHasher;
     _jwtProvider = jwtProvider;
-    _emailQueue = emailQueue;
+    _notificationService = notificationService;
     _configuration = configuration;
   }
 
@@ -43,6 +43,7 @@ public class AuthService
 
     var newUser = new User
     {
+      Id = Guid.NewGuid(),
       FirstName = request.FirstName,
       LastName = request.LastName,
       Email = request.Email,
@@ -58,14 +59,11 @@ public class AuthService
 
     var confirmLink = $"{frontendUrl}/auth/confirm?token={confirmToken}";
 
-    _emailQueue.EnqueueEmail(
-      newUser.Email,
+    await _notificationService.CreateNotificationAsync(
+      newUser.Id,
       "Confirm your account",
-      $"""
-      <h1>Welcome to BookinApp</h1>
-      <p>Click the next link for confirm your account:</p>
-      <a href='{confirmLink}'>Cofirm my Account</a>
-      """
+      $"Click the next link for confirm your account: {confirmLink}",
+      BookingApp.Domain.Enums.NotificationType.Email
     );
 
     return "User register. Please check your mail for confirm your account.";

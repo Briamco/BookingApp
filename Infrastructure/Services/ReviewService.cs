@@ -1,4 +1,5 @@
 using BookingApp.Application.DTOs;
+using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Entities;
 using BookingApp.Domain.Enums;
 using BookingApp.Domain.Interface;
@@ -9,11 +10,20 @@ public class ReviewService
 {
   private readonly IReviewRepository _reviewRepo;
   private readonly IReservationRepository _reservationRepo;
+  private readonly IPropertyRepository _propertyRepository;
+  private readonly INotificationService _notificationService;
 
-  public ReviewService(IReviewRepository reviewRepo, IReservationRepository reservationRepo)
+  public ReviewService(
+    IReviewRepository reviewRepo,
+    IReservationRepository reservationRepo,
+    IPropertyRepository propertyRepository,
+    INotificationService notificationService
+  )
   {
     _reviewRepo = reviewRepo;
     _reservationRepo = reservationRepo;
+    _propertyRepository = propertyRepository;
+    _notificationService = notificationService;
   }
 
   public async Task<ReviewResponse> CreateReviewAsync(int reservationId, Guid currentUserId, CreateReviewRequest request)
@@ -43,6 +53,16 @@ public class ReviewService
     };
 
     await _reviewRepo.AddAsync(review);
+
+    var property = await _propertyRepository.GetByIdAsync(reservation.PropertyId)
+      ?? throw new Exception("Property not found.");
+
+    await _notificationService.CreateNotificationAsync(
+      property.HostId,
+      "New Review",
+      $"You have received a new {request.Rate}-star review.",
+      NotificationType.Push
+    );
 
     return new ReviewResponse
     {

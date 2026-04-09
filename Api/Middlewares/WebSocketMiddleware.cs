@@ -1,4 +1,5 @@
 using BookingApp.Application.Intefaces.Services;
+using System.Security.Claims;
 using System.Net;
 
 namespace BookingApp.Api.Middlewares;
@@ -24,6 +25,15 @@ public class WebSocketMiddleware
         var pathSegments = context.Request.Path.Value?.Split('/') ?? Array.Empty<string>();
         if (pathSegments.Length > 0 && Guid.TryParse(pathSegments[^1], out var userId))
         {
+          var authenticatedUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+          if (!string.IsNullOrWhiteSpace(authenticatedUserId) &&
+              Guid.TryParse(authenticatedUserId, out var currentUserId) &&
+              currentUserId != userId)
+          {
+            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            return;
+          }
+
           try
           {
             using var webSocket = await context.WebSockets.AcceptWebSocketAsync();

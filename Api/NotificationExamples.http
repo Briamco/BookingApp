@@ -52,7 +52,7 @@ PUT {{apiUrl}}/notification/1/read
 Authorization: Bearer YOUR_JWT_TOKEN
 
 ### Connect to WebSocket (push notifications)
-# Use WebSocket client to connect to: wss://localhost:5001/api/notification/ws
+# Use WebSocket client to connect to: wss://localhost:5001/api/notification/ws/YOUR_USER_ID
 # The connection will receive push notifications in JSON format:
 # {
 #   "type": "notification",
