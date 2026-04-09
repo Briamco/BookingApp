@@ -58,6 +58,14 @@ public class AppDbContext : DbContext
       .OnDelete(DeleteBehavior.Restrict);
 
     modelBuilder.Entity<Review>()
+      .ToTable("Review");
+
+    modelBuilder.Entity<Review>()
+      .HasOne(r => r.Reservation)
+      .WithOne(r => r.Review)
+      .HasForeignKey<Review>(r => r.ReservationId);
+
+    modelBuilder.Entity<Review>()
       .HasIndex(r => r.ReservationId)
       .IsUnique();
   }

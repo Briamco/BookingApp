@@ -23,5 +23,4 @@ public class Property : Entity
   public ICollection<Image> Images { get; set; } = [];
   public ICollection<Reservation> Reservations { get; set; } = [];
   public ICollection<BlockedDate> BlockedDates { get; set; } = [];
-  public ICollection<Review> Reviews { get; set; } = [];
 }

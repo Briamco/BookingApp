@@ -67,6 +67,9 @@ public class PropertyController(PropertyService service, IUserService userServic
     {
       var property = await _service.GetPropertyByIdAsync(id);
 
+      if (property is null)
+        return NotFound(new { error = "Property not found." });
+
       return Ok(property);
     }
     catch (Exception ex)

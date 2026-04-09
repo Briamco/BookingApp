@@ -8,31 +8,35 @@ namespace BookingApp.Infrastructure.Services;
 public class PropertyService
 {
   private readonly IPropertyRepository _propertyRepo;
+  private readonly IReviewRepository _reviewRepo;
 
-  public PropertyService(IPropertyRepository propertyRepo) => _propertyRepo = propertyRepo;
+  public PropertyService(IPropertyRepository propertyRepo, IReviewRepository reviewRepo)
+  {
+    _propertyRepo = propertyRepo;
+    _reviewRepo = reviewRepo;
+  }
 
   public async Task<IEnumerable<PropertyResponse>> SearchPropertiesAsync(string? location, decimal? maxPrice, int? minCapacity, DateOnly? startDate, DateOnly? endDate)
   {
     var properties = await _propertyRepo.SearchAvaibleAsync(location, maxPrice, minCapacity, startDate, endDate);
+    var responses = new List<PropertyResponse>();
 
-    return properties.Select(p => new PropertyResponse
+    foreach (var property in properties)
     {
-      Id = p.Id,
-      HostId = p.HostId,
-      Title = p.Title,
-      Description = p.Description,
-      NightPrice = p.NightPrice,
-      Capacity = p.Capacity,
-      Latitude = p.Latitude,
-      Longitude = p.Longitude,
-      City = p.Location.City,
-      State = p.Location.State,
-      Country = p.Location.Country,
-      Images = p.Images
-    });
+      responses.Add(await MapToPropertyResponseAsync(property));
+    }
+
+    return responses;
   }
 
-  public async Task<Property?> GetPropertyByIdAsync(int id) => await _propertyRepo.GetByIdAsync(id);
+  public async Task<PropertyResponse?> GetPropertyByIdAsync(int id)
+  {
+    var property = await _propertyRepo.GetByIdAsync(id);
+    if (property is null)
+      return null;
+
+    return await MapToPropertyResponseAsync(property);
+  }
 
   public async Task<Property> CreatePropertyAsync(Guid hostId, CreatePropertyRequest request)
   {
@@ -87,5 +91,27 @@ public class PropertyService
       throw new UnauthorizedAccessException("Dont allow for edit this property.");
 
     await _propertyRepo.DeleteAsync(property);
+  }
+
+  private async Task<PropertyResponse> MapToPropertyResponseAsync(Property p)
+  {
+    var averageRating = await _reviewRepo.GetAverageRatingAsync(p.Id);
+
+    return new PropertyResponse
+    {
+      Id = p.Id,
+      HostId = p.HostId,
+      Title = p.Title,
+      Description = p.Description,
+      NightPrice = p.NightPrice,
+      Capacity = p.Capacity,
+      Latitude = p.Latitude,
+      Longitude = p.Longitude,
+      City = p.Location.City,
+      State = p.Location.State,
+      Country = p.Location.Country,
+      AverageRating = averageRating,
+      Images = p.Images
+    };
   }
 }

@@ -11,6 +11,11 @@ public class ReviewRepository : IReviewRepository
 
   public ReviewRepository(AppDbContext context) => _context = context;
 
+  public async Task<Review?> GetByReservationIdAsync(int reservationId)
+  {
+    return await _context.Reviews.FirstOrDefaultAsync(r => r.ReservationId == reservationId);
+  }
+
   public async Task AddAsync(Review review)
   {
     await _context.Reviews.AddAsync(review);
@@ -19,7 +24,7 @@ public class ReviewRepository : IReviewRepository
 
   public async Task<double> GetAverageRatingAsync(int propertyId)
   {
-    var reviews = _context.Reviews.Where(r => r.PropertyId == propertyId);
+    var reviews = _context.Reviews.Where(r => r.Reservation.PropertyId == propertyId);
     if (!await reviews.AnyAsync()) return 0;
 
     return await reviews.AverageAsync(r => r.Rate);

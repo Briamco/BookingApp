@@ -115,6 +115,9 @@ builder.Services.AddScoped<ReservationService>();
 // Add BlockedDate Scope
 builder.Services.AddScoped<BlockedDateService>();
 
+// Add Review Scope
+builder.Services.AddScoped<ReviewService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

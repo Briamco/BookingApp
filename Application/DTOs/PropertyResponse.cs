@@ -15,5 +15,6 @@ public class PropertyResponse
   public string City { get; set; } = string.Empty;
   public string State { get; set; } = string.Empty;
   public string Country { get; set; } = string.Empty;
+  public double AverageRating { get; set; }
   public ICollection<Image> Images { get; set; } = [];
 }
