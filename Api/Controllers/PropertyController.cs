@@ -2,7 +2,6 @@ using BookingApp.Application.DTOs;
 using BookingApp.Application.Intefaces;
 using BookingApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingApp.Api.Controllers;
@@ -38,7 +37,7 @@ public class PropertyController(PropertyService service, IUserService userServic
   }
 
   [HttpPost]
-  [Authorize]
+  [Authorize(Roles = "Host")]
   public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyRequest request)
   {
     try
@@ -79,7 +78,7 @@ public class PropertyController(PropertyService service, IUserService userServic
   }
 
   [HttpPut("{id}")]
-  [Authorize]
+  [Authorize(Roles = "Host")]
   public async Task<IActionResult> UpdateProperty(int id, [FromBody] CreatePropertyRequest request)
   {
     try
@@ -100,7 +99,7 @@ public class PropertyController(PropertyService service, IUserService userServic
   }
 
   [HttpDelete("{id}")]
-  [Authorize]
+  [Authorize(Roles = "Host")]
   public async Task<IActionResult> DeleteProperty(int id)
   {
     try
@@ -121,7 +120,7 @@ public class PropertyController(PropertyService service, IUserService userServic
   }
 
   [HttpPost("{id}/reservate")]
-  [Authorize]
+  [Authorize(Roles = "Guest")]
   public async Task<IActionResult> CreateReservation(int id, [FromBody] CreateReservationRequest request)
   {
     try
@@ -142,6 +141,7 @@ public class PropertyController(PropertyService service, IUserService userServic
   }
 
   [HttpPost("{id}/blockDate")]
+  [Authorize(Roles = "Host")]
   public async Task<IActionResult> BlockDate(int id, [FromBody] CreateReservationRequest request)
   {
     try

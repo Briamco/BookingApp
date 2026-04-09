@@ -14,7 +14,7 @@ public class ReservationController(ReservationService service, IUserService user
   private readonly IUserService _userService = userService;
 
   [HttpPut("{id}")]
-  [Authorize]
+  [Authorize(Roles = "Guest")]
   public async Task<IActionResult> UpdateReservation(int id, [FromBody] CreateReservationRequest request)
   {
     try
@@ -35,7 +35,7 @@ public class ReservationController(ReservationService service, IUserService user
   }
 
   [HttpPatch("{id}/cancel")]
-  [Authorize]
+  [Authorize(Roles = "Guest")]
   public async Task<IActionResult> CancelReservation(int id)
   {
     try
@@ -44,6 +44,30 @@ public class ReservationController(ReservationService service, IUserService user
       await _service.CancelReservationAsync(id, currentUser);
 
       return Ok(new { message = "Reservation cancelation success." });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Forbid(ex.Message);
+    }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+      return NotFound(new { error = ex.Message });
+    }
+  }
+
+  [HttpPatch("{id}/complete")]
+  [Authorize(Roles = "Host")]
+  public async Task<IActionResult> CompleteReservation(int id)
+  {
+    try
+    {
+      await _service.CompleteReservationAsync(id, _userService.GetUserId());
+
+      return Ok(new { message = "Reservation completion success." });
     }
     catch (UnauthorizedAccessException ex)
     {

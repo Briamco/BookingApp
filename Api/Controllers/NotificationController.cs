@@ -65,42 +65,6 @@ public class NotificationController : ControllerBase
     });
   }
 
-  [HttpPost]
-  public async Task<ActionResult<NotificationResponse>> CreateNotification(
-      [FromBody] CreateNotificationRequest request
-  )
-  {
-    if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Message))
-      return BadRequest("Title and message are required");
-
-    if (!Enum.IsDefined(typeof(NotificationType), request.Type))
-      return BadRequest("Invalid notification type");
-
-    var userId = _userService.GetUserId();
-    var type = (NotificationType)request.Type;
-    var notification = await _notificationService.CreateNotificationAsync(
-        userId,
-        request.Title,
-        request.Message,
-        type
-    );
-
-    return CreatedAtAction(
-        nameof(GetNotification),
-        new { id = notification.Id },
-        new NotificationResponse
-        {
-          Id = notification.Id,
-          UserId = notification.UserId,
-          Title = notification.Title,
-          Message = notification.Message,
-          IsRead = notification.IsRead,
-          Type = (int)notification.Type,
-          CreatedAt = notification.CreatedAt
-        }
-    );
-  }
-
   [HttpPut("{id}/read")]
   public async Task<ActionResult> MarkAsRead([FromRoute] int id)
   {

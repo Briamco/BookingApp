@@ -31,6 +31,8 @@ public class JwtProvider : IJwtProvider
     {
       new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
       new Claim(JwtRegisteredClaimNames.Email, user.Email),
+      new Claim(System.Security.Claims.ClaimTypes.Role, "Host"),
+      new Claim(System.Security.Claims.ClaimTypes.Role, "Guest"),
       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 

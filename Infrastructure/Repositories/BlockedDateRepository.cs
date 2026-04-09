@@ -39,7 +39,7 @@ public class BlockedDateRepository : IBlockedRepository
 
   public async Task UpdateAsync(BlockedDate blockedDate)
   {
-    _context.BlockedDates.Remove(blockedDate);
+    _context.BlockedDates.Update(blockedDate);
     await _context.SaveChangesAsync();
   }
 }

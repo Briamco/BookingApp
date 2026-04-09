@@ -14,7 +14,7 @@ public class ReviewController(ReviewService service, IUserService userService) :
   private readonly IUserService _userService = userService;
 
   [HttpPost("reservation/{reservationId}")]
-  [Authorize]
+  [Authorize(Roles = "Guest")]
   public async Task<IActionResult> CreateReview(int reservationId, [FromBody] CreateReviewRequest request)
   {
     try

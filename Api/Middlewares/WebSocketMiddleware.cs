@@ -19,6 +19,12 @@ public class WebSocketMiddleware
   {
     if (context.Request.Path.StartsWithSegments("/api/notification/ws"))
     {
+      if (context.User?.Identity?.IsAuthenticated != true)
+      {
+        context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+        return;
+      }
+
       if (context.WebSockets.IsWebSocketRequest)
       {
         // Extract userId from the path

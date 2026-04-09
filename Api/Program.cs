@@ -155,6 +155,8 @@ app.UseAuthorization();
 app.UseWebSockets();
 app.UseMiddleware<BookingApp.Api.Middlewares.WebSocketMiddleware>();
 
+app.UseMiddleware<BookingApp.Api.Middlewares.GlobalExceptionMiddleware>();
+
 app.MapControllers();
 
 app.Run();

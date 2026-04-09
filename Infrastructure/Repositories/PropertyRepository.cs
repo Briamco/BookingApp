@@ -28,6 +28,8 @@ public class PropertyRepository : IPropertyRepository
     var query = _context.Properties
       .Include(p => p.Location)
       .Include(p => p.Images)
+      .Include(p => p.Reservations)
+      .Include(p => p.BlockedDates)
       .AsQueryable();
 
     if (!string.IsNullOrEmpty(location))
@@ -42,12 +44,23 @@ public class PropertyRepository : IPropertyRepository
     if (maxPrice.HasValue)
       query = query.Where(p => p.NightPrice <= maxPrice.Value);
 
-    query = query.Where(p =>
-      !p.Reservations.Any(
-        r => r.Status == ReservationStatus.Completed &&
-        r.StartDate < endDate && r.EndDate > startDate
+    if (capacity.HasValue)
+      query = query.Where(p => p.Capacity >= capacity.Value);
+
+    if (startDate.HasValue && endDate.HasValue)
+    {
+      query = query.Where(p =>
+        !p.Reservations.Any(r =>
+          r.Status == ReservationStatus.Confimed &&
+          r.StartDate < endDate.Value &&
+          r.EndDate > startDate.Value
+        ) &&
+        !p.BlockedDates.Any(b =>
+          b.StartDate < endDate.Value &&
+          b.EndDate > startDate.Value
         )
-    );
+      );
+    }
 
     return await query.ToListAsync();
   }

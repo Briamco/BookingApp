@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using BookingApp.Infrastructure.Services;
 using BookingApp.Domain.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +37,8 @@ public class ReservationCompletionWorker : BackgroundService
       using var scope = _serviceProvider.CreateScope();
 
       var reservationRepo = scope.ServiceProvider.GetRequiredService<IReservationRepository>();
+      var propertyRepo = scope.ServiceProvider.GetRequiredService<IPropertyRepository>();
+      var reservationService = scope.ServiceProvider.GetRequiredService<ReservationService>();
 
       var today = DateOnly.FromDateTime(DateTime.UtcNow);
       var reservationsToComplete = await reservationRepo.GetReservationsToCompleteAsync(today);
@@ -43,9 +46,19 @@ public class ReservationCompletionWorker : BackgroundService
       int count = 0;
       foreach (var reservation in reservationsToComplete)
       {
-        reservation.Complete();
-        await reservationRepo.UpdateAsync(reservation);
-        count++;
+        try
+        {
+          var property = await propertyRepo.GetByIdAsync(reservation.PropertyId);
+          if (property == null)
+            continue;
+
+          await reservationService.CompleteReservationAsync(reservation.Id, property.HostId);
+          count++;
+        }
+        catch (Exception ex)
+        {
+          _logger.LogError(ex, $"Could not complete reservation {reservation.Id}");
+        }
       }
 
       if (count > 0)

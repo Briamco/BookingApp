@@ -1,12 +1,14 @@
 using BookingApp.Application.DTOs;
 using BookingApp.Application.Intefaces;
 using BookingApp.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Host")]
 public class BlockedDateController(BlockedDateService service, IUserService userService) : ControllerBase
 {
   public readonly BlockedDateService _service = service;
