@@ -29,13 +29,13 @@ public class PropertyService
     return responses;
   }
 
-  public async Task<PropertyResponse?> GetPropertyByIdAsync(int id)
+  public async Task<PropertyDetailResponse?> GetPropertyByIdAsync(int id)
   {
     var property = await _propertyRepo.GetByIdAsync(id);
     if (property is null)
       return null;
 
-    return await MapToPropertyResponseAsync(property);
+    return await MapToPropertyDetailResponseAsync(property);
   }
 
   public async Task<Property> CreatePropertyAsync(Guid hostId, CreatePropertyRequest request)
@@ -111,6 +111,49 @@ public class PropertyService
       State = p.Location.State,
       Country = p.Location.Country,
       AverageRating = averageRating,
+      Images = p.Images
+    };
+  }
+
+  private async Task<PropertyDetailResponse> MapToPropertyDetailResponseAsync(Property p)
+  {
+    var averageRating = await _reviewRepo.GetAverageRatingAsync(p.Id);
+
+    return new PropertyDetailResponse
+    {
+      Id = p.Id,
+      HostId = p.HostId,
+      Title = p.Title,
+      Description = p.Description,
+      NightPrice = p.NightPrice,
+      Capacity = p.Capacity,
+      Latitude = p.Latitude,
+      Longitude = p.Longitude,
+      City = p.Location.City,
+      State = p.Location.State,
+      Country = p.Location.Country,
+      AverageRating = averageRating,
+      Reservations = p.Reservations
+        .OrderBy(r => r.StartDate)
+        .Select(r => new PropertyReservationResponse
+        {
+          Id = r.Id,
+          GuestId = r.GuestId,
+          StartDate = r.StartDate,
+          EndDate = r.EndDate,
+          Status = r.Status,
+          CreatedAt = r.CreatedAt
+        })
+        .ToList(),
+      BlockedDates = p.BlockedDates
+        .OrderBy(b => b.StartDate)
+        .Select(b => new PropertyBlockedDateResponse
+        {
+          Id = b.Id,
+          StartDate = b.StartDate,
+          EndDate = b.EndDate
+        })
+        .ToList(),
       Images = p.Images
     };
   }
