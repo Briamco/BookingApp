@@ -1,4 +1,5 @@
 using BookingApp.Domain.Entities;
+using BookingApp.Domain.Enums;
 using BookingApp.Domain.Interface;
 using BookingApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,11 @@ public class BlockedDateRepository : IBlockedRepository
       b.PropertyId == propertyId &&
       b.StartDate < endDate &&
       b.EndDate > startDate
+    ) || await _context.Reservations.AnyAsync(r =>
+      r.PropertyId == propertyId &&
+      r.Status == ReservationStatus.Confimed &&
+      r.StartDate < endDate &&
+      r.EndDate > startDate
     );
   }
 

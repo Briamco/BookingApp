@@ -24,6 +24,10 @@ public class ReservationRepository : IReservationRepository
       r.Status == ReservationStatus.Confimed &&
       r.StartDate < endDate &&
       r.EndDate > startDate
+    ) || await _context.BlockedDates.AnyAsync(b =>
+      b.PropertyId == propertyId &&
+      b.StartDate < endDate &&
+      b.EndDate > startDate
     );
   }
 
