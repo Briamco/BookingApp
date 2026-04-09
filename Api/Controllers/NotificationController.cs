@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.WebSockets;
 using BookingApp.Application.DTOs;
+using BookingApp.Application.Intefaces;
 using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -15,25 +16,28 @@ public class NotificationController : ControllerBase
 {
   private readonly INotificationService _notificationService;
   private readonly IWebSocketConnectionManager _webSocketManager;
+  private readonly IUserService _userService;
   private readonly ILogger<NotificationController> _logger;
 
   public NotificationController(
       INotificationService notificationService,
       IWebSocketConnectionManager webSocketManager,
+      IUserService userService,
       ILogger<NotificationController> logger
   )
   {
     _notificationService = notificationService;
     _webSocketManager = webSocketManager;
+    _userService = userService;
     _logger = logger;
   }
 
-  [HttpGet("user/{userId}")]
+  [HttpGet("user/me")]
   public async Task<ActionResult<IEnumerable<NotificationResponse>>> GetUserNotifications(
-      [FromRoute] Guid userId,
       [FromQuery] bool onlyUnread = false
   )
   {
+    var userId = _userService.GetUserId();
     var notifications = await _notificationService.GetNotificationsByUserAsync(userId, onlyUnread);
     var responses = notifications.Select(n => new NotificationResponse
     {
@@ -76,9 +80,10 @@ public class NotificationController : ControllerBase
     if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Message))
       return BadRequest("Title and message are required");
 
+    var userId = _userService.GetUserId();
     var type = (NotificationType)request.Type;
     var notification = await _notificationService.CreateNotificationAsync(
-        request.UserId,
+        userId,
         request.Title,
         request.Message,
         type
@@ -111,9 +116,11 @@ public class NotificationController : ControllerBase
     return NoContent();
   }
 
-  [HttpGet("ws/{userId}")]
-  public async Task WebSocketConnection([FromRoute] Guid userId)
+  [HttpGet("ws")]
+  public async Task WebSocketConnection()
   {
+    var userId = _userService.GetUserId();
+
     if (HttpContext.WebSockets.IsWebSocketRequest)
     {
       try
