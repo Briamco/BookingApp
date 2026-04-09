@@ -9,11 +9,12 @@ namespace BookingApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PropertyController(PropertyService service, IUserService userService, ReservationService reservationService) : ControllerBase
+public class PropertyController(PropertyService service, IUserService userService, ReservationService reservationService, BlockedDateService blockedDateService) : ControllerBase
 {
   private readonly PropertyService _service = service;
   private readonly IUserService _userService = userService;
   private readonly ReservationService _reservationService = reservationService;
+  private readonly BlockedDateService _blockedDateService = blockedDateService;
 
   [HttpGet]
   [AllowAnonymous]
@@ -116,19 +117,39 @@ public class PropertyController(PropertyService service, IUserService userServic
     }
   }
 
-  [HttpPost("{propertyId}/reservate")]
+  [HttpPost("{id}/reservate")]
   [Authorize]
-  public async Task<IActionResult> CreateReservation(int propertyId, [FromBody] CreateReservationRequest request)
+  public async Task<IActionResult> CreateReservation(int id, [FromBody] CreateReservationRequest request)
   {
     try
     {
       var currentUserId = _userService.GetUserId();
-      var newReservation = await _reservationService.CreateReservationAsync(propertyId, currentUserId, request);
+      var newReservation = await _reservationService.CreateReservationAsync(id, currentUserId, request);
 
       return CreatedAtAction(
         nameof(CreateReservation),
         new { id = newReservation.Id },
         new { message = "Reservation Creation Success.", propertyId = newReservation.Id }
+      );
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
+  [HttpPost("{id}/blockDate")]
+  public async Task<IActionResult> BlockDate(int id, [FromBody] CreateReservationRequest request)
+  {
+    try
+    {
+      var currentUser = _userService.GetUserId();
+      var newBlockedDate = await _blockedDateService.BlockDate(id, currentUser, request);
+
+      return CreatedAtAction(
+        nameof(BlockDate),
+        new { id = newBlockedDate.Id },
+        new { message = "Blocked Date Creation Success.", blockedDateId = newBlockedDate.Id }
       );
     }
     catch (Exception ex)

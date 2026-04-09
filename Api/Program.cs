@@ -112,6 +112,9 @@ builder.Services.AddScoped<PropertyService>();
 // Add Reservation Scope
 builder.Services.AddScoped<ReservationService>();
 
+// Add BlockedDate Scope
+builder.Services.AddScoped<BlockedDateService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

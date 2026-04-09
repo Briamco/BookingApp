@@ -12,6 +12,11 @@ public class BlockedDateRepository : IBlockedRepository
 
   public BlockedDateRepository(AppDbContext context) => _context = context;
 
+  public async Task<BlockedDate?> GetByIdAsync(int blockedDateId)
+  {
+    return await _context.BlockedDates.FirstOrDefaultAsync(b => b.Id == blockedDateId);
+  }
+
   public async Task<bool> HasOverlappingAsync(int propertyId, DateOnly startDate, DateOnly endDate)
   {
     return await _context.BlockedDates.AnyAsync(b =>
