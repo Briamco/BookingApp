@@ -101,4 +101,20 @@ public class AuthService
 
     return true;
   }
+
+  public async Task<UserResponse> GetUserInfoAsync(Guid userId)
+  {
+    var user = await _userRepository.GetByIdAsync(userId)
+      ?? throw new Exception("User not found.");
+
+    return new UserResponse
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Email = user.Email,
+      Phone = user.Phone,
+      IsConfirmed = user.IsConfirmed
+    };
+  }
 }
