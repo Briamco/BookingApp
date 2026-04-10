@@ -8,4 +8,18 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL,
+        changeOrigin: true,
+        secure: false
+      },
+      '/ws': {
+        target: process.env.VITE_WS_URL,
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  }
 })
