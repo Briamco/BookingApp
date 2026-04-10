@@ -1,7 +1,9 @@
 using BookingApp.Application.DTOs;
 using BookingApp.Application.DTOs.Property;
+using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Entities;
 using BookingApp.Domain.Interface;
+using Microsoft.AspNetCore.Http;
 
 namespace BookingApp.Infrastructure.Services;
 
@@ -9,11 +11,19 @@ public class PropertyService
 {
   private readonly IPropertyRepository _propertyRepo;
   private readonly IReviewRepository _reviewRepo;
+  private readonly IImageRepository _imageRepo;
+  private readonly IImageStorageService _imageStorageService;
 
-  public PropertyService(IPropertyRepository propertyRepo, IReviewRepository reviewRepo)
+  public PropertyService(
+    IPropertyRepository propertyRepo,
+    IReviewRepository reviewRepo,
+    IImageRepository imageRepo,
+    IImageStorageService imageStorageService)
   {
     _propertyRepo = propertyRepo;
     _reviewRepo = reviewRepo;
+    _imageRepo = imageRepo;
+    _imageStorageService = imageStorageService;
   }
 
   public async Task<IEnumerable<PropertyResponse>> SearchPropertiesAsync(string? location, decimal? maxPrice, int? minCapacity, DateOnly? startDate, DateOnly? endDate)
@@ -156,5 +166,99 @@ public class PropertyService
         .ToList(),
       Images = p.Images
     };
+  }
+
+  public async Task<ImageResponse> UploadImageAsync(int propertyId, Guid currentUser, IFormFile imageFile)
+  {
+    var property = await _propertyRepo.GetByIdAsync(propertyId)
+      ?? throw new Exception("Property not found.");
+
+    if (property.HostId != currentUser)
+      throw new UnauthorizedAccessException("Don't have permission to upload images to this property.");
+
+    // Validar extensión de archivo
+    var allowedExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+    var extension = Path.GetExtension(imageFile.FileName).ToLower();
+
+    if (!allowedExtensions.Contains(extension))
+      throw new Exception("Invalid image format. Allowed: JPG, PNG, GIF, WEBP.");
+
+    // Validar tamaño máximo (5MB)
+    const long maxFileSize = 5 * 1024 * 1024;
+    if (imageFile.Length > maxFileSize)
+      throw new Exception("Image size cannot exceed 5MB.");
+
+    // Guardar imagen
+    using var stream = imageFile.OpenReadStream();
+    var imageUrl = await _imageStorageService.SaveImageAsync(stream, extension);
+
+    // Obtener el orden más alto actual
+    var existingImages = await _imageRepo.GetByPropertyIdAsync(propertyId);
+    var nextOrder = existingImages.Count > 0 ? existingImages.Max(x => x.Order) + 1 : 0;
+
+    // Crear registro en BD
+    var newImage = new Image
+    {
+      PropertyId = propertyId,
+      Url = imageUrl,
+      Order = nextOrder
+    };
+
+    await _imageRepo.AddAsync(newImage);
+
+    return new ImageResponse
+    {
+      Id = newImage.Id,
+      Url = newImage.Url,
+      Order = newImage.Order
+    };
+  }
+
+  public async Task<List<ImageResponse>> GetPropertyImagesAsync(int propertyId)
+  {
+    var images = await _imageRepo.GetByPropertyIdAsync(propertyId);
+
+    return images.Select(i => new ImageResponse
+    {
+      Id = i.Id,
+      Url = i.Url,
+      Order = i.Order
+    }).ToList();
+  }
+
+  public async Task DeleteImageAsync(int propertyId, int imageId, Guid currentUser)
+  {
+    var property = await _propertyRepo.GetByIdAsync(propertyId)
+      ?? throw new Exception("Property not found.");
+
+    if (property.HostId != currentUser)
+      throw new UnauthorizedAccessException("Don't have permission to delete images from this property.");
+
+    var images = await _imageRepo.GetByPropertyIdAsync(propertyId);
+    var imageToDelete = images.FirstOrDefault(i => i.Id == imageId)
+      ?? throw new Exception("Image not found.");
+
+    _imageStorageService.DeleteImage(imageToDelete.Url);
+    await _imageRepo.DeleteAsync(imageToDelete);
+  }
+
+  public async Task ReorderImagesAsync(int propertyId, Guid currentUser, List<(int ImageId, int Order)> imageOrders)
+  {
+    var property = await _propertyRepo.GetByIdAsync(propertyId)
+      ?? throw new Exception("Property not found.");
+
+    if (property.HostId != currentUser)
+      throw new UnauthorizedAccessException("Don't have permission to reorder images for this property.");
+
+    var images = await _imageRepo.GetByPropertyIdAsync(propertyId);
+
+    foreach (var (imageId, order) in imageOrders)
+    {
+      var image = images.FirstOrDefault(i => i.Id == imageId)
+        ?? throw new Exception($"Image {imageId} not found.");
+
+      image.Order = order;
+      await _imageRepo.UpdateAsync(image);
+    }
   }
 }

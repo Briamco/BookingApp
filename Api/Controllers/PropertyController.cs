@@ -160,4 +160,88 @@ public class PropertyController(PropertyService service, IUserService userServic
       return BadRequest(new { error = ex.Message });
     }
   }
+
+  [HttpPost("{id}/images")]
+  [Authorize(Roles = "Host")]
+  public async Task<IActionResult> UploadImage(int id, IFormFile image)
+  {
+    try
+    {
+      if (image == null || image.Length == 0)
+        return BadRequest(new { error = "No image provided." });
+
+      var currentUser = _userService.GetUserId();
+      var imageResponse = await _service.UploadImageAsync(id, currentUser, image);
+
+      return CreatedAtAction(
+        nameof(UploadImage),
+        new { id = imageResponse.Id },
+        new { message = "Image uploaded successfully.", image = imageResponse }
+      );
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Forbid(ex.Message);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
+  [HttpGet("{id}/images")]
+  [AllowAnonymous]
+  public async Task<IActionResult> GetPropertyImages(int id)
+  {
+    try
+    {
+      var images = await _service.GetPropertyImagesAsync(id);
+      return Ok(images);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
+  [HttpDelete("{id}/images/{imageId}")]
+  [Authorize(Roles = "Host")]
+  public async Task<IActionResult> DeleteImage(int id, int imageId)
+  {
+    try
+    {
+      var currentUser = _userService.GetUserId();
+      await _service.DeleteImageAsync(id, imageId, currentUser);
+      return Ok(new { message = "Image deleted successfully." });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Forbid(ex.Message);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
+  [HttpPut("{id}/images/reorder")]
+  [Authorize(Roles = "Host")]
+  public async Task<IActionResult> ReorderImages(int id, [FromBody] List<ImageReorderRequest> imageOrders)
+  {
+    try
+    {
+      var currentUser = _userService.GetUserId();
+      var reorderList = imageOrders.Select(x => (x.ImageId, x.Order)).ToList();
+      await _service.ReorderImagesAsync(id, currentUser, reorderList);
+      return Ok(new { message = "Images reordered successfully." });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Forbid(ex.Message);
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
 }

@@ -6,6 +6,7 @@ using BookingApp.Application.Intefaces.Services;
 using BookingApp.Domain.Interface;
 using BookingApp.Infrastructure.BackgroundJobs;
 using BookingApp.Infrastructure.Data;
+using BookingApp.Infrastructure.Repositories;
 using BookingApp.Infrastructure.Respositories;
 using BookingApp.Infrastructure.Services;
 using DotNetEnv;
@@ -41,6 +42,7 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IBlockedRepository, BlockedDateRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
 // Add resend
 builder.Services.AddHttpClient<ResendClient>();
