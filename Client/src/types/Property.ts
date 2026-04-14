@@ -46,4 +46,5 @@ export interface CreatePropertyRequest {
   city: string;
   state: string;
   coutry: string;
+  images?: File[];
 }

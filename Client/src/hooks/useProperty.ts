@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react"
 import type { CreatePropertyRequest, Property } from "../types"
 import { PropertyService } from "../services/PropertyService"
+import { useToast } from "../context/ToastContext"
 
 export const useProperty = () => {
+  const { addToast } = useToast();
+
   const [properties, setProperties] = useState<Property[]>([])
 
   const fetchProperties = async (location?: string, maxPrice?: number, minCapcity?: number, startDate?: Date, endDate?: Date) => {
@@ -19,8 +22,16 @@ export const useProperty = () => {
   const createProperty = async (request: CreatePropertyRequest) => {
     const response = await PropertyService.create(request)
 
-    if (response)
-      setProperties([...properties, response])
+    console.log(response)
+
+    if (request.images && request.images.length > 0) {
+      try {
+        await PropertyService.uploadImages(response.propertyId, request.images)
+      } catch (error) {
+        console.error("Failed to upload images:", error)
+        addToast('error', 'Cant upload the image')
+      }
+    }
   }
 
   const updateProperty = async (id: number, request: CreatePropertyRequest): Promise<string> => {
@@ -35,8 +46,8 @@ export const useProperty = () => {
 
   return {
     properties,
-    fetchProperties,
     createProperty,
+    fetchProperties,
     updateProperty,
     deletePropery
   }

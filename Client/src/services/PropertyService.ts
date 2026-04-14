@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Property, PropertyDatail, CreatePropertyRequest } from "../types";
 import { api } from "./apiService";
 
@@ -16,8 +17,20 @@ export const PropertyService = {
   getById: async (id: number) =>
     api.get<PropertyDatail>(`/property/${id}`),
 
-  create: async (request: CreatePropertyRequest) =>
-    api.post<Property>('/property', request, { auth: "required" }),
+  create: async (request: CreatePropertyRequest) => {
+    const { images, ...propertyData } = request;
+    return api.post<{ message: string, propertyId: number }>('/property', propertyData, { auth: "required" });
+  },
+
+  uploadImages: async (propertyId: number, images: File[]) => {
+    const uploadPromises = images.map((image) => {
+      const formData = new FormData();
+      formData.append('image', image);
+      return api.post(`/property/${propertyId}/images`, formData, { auth: "required" });
+    });
+
+    return Promise.all(uploadPromises);
+  },
 
   update: async (id: number, request: CreatePropertyRequest) =>
     api.put<{ message: string }>(`/property/${id}`, request, { auth: "required" }),
