@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookingApp.Domain.Entities;
@@ -6,6 +7,8 @@ public class Property : Entity
 {
   [Column("host_id")]
   public Guid HostId { get; set; }
+
+  [StringLength(255, MinimumLength = 3)]
   public string Title { get; set; } = string.Empty;
   public string Description { get; set; } = string.Empty;
   public decimal Latitude { get; set; }

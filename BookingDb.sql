@@ -32,7 +32,7 @@ create table Properties
 (
 	id int primary key identity(1,1),
 	[host_id] uniqueidentifier not null,
-	title nvarchar(50) not null,
+	title nvarchar(255) not null,
 	[description] nvarchar(max) not null,
 	latitude decimal(8,6) not null,
 	longitude decimal(9,6) not null,

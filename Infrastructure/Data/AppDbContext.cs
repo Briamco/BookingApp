@@ -68,5 +68,9 @@ public class AppDbContext : DbContext
     modelBuilder.Entity<Review>()
       .HasIndex(r => r.ReservationId)
       .IsUnique();
+
+    modelBuilder.Entity<Property>()
+      .Property(p => p.Title)
+      .HasMaxLength(255);
   }
 }
