@@ -3,7 +3,7 @@ import { api } from "./apiService";
 
 export const authService = {
   register: async (request: RegisterRequest) =>
-    api.post<string>('/auth/register', request),
+    api.post<{ message: string }>('/auth/register', request),
 
   login: async (request: LoginRequest) =>
     api.post<LoginResponse>('/auth/login', request),
