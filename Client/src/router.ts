@@ -5,13 +5,15 @@ import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 import ConfirmCard from "./components/auth/ConfirmCard";
 import PageLayout from "./components/layouts/PageLayout";
+import MyPropertiesPage from "./pages/MyPropertiesPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: PageLayout,
     children: [
-      { path: "", Component: MainPage }
+      { path: "", Component: MainPage },
+      { path: "my-properties", Component: MyPropertiesPage }
     ]
   },
   {

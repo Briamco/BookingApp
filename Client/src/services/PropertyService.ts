@@ -10,18 +10,18 @@ export const PropertyService = {
     if (startDate) params.append('startDate', startDate.toISOString());
     if (endDate) params.append('endDate', endDate.toISOString());
 
-    return await api.get<Property[]>(`/api/property?${params.toString()}`)
+    return await api.get<Property[]>(`/property?${params.toString()}`)
   },
 
   getById: async (id: number) =>
-    api.get<PropertyDatail>(`/api/property/${id}`),
+    api.get<PropertyDatail>(`/property/${id}`),
 
   create: async (request: CreatePropertyRequest) =>
-    api.post<Property>('/api/property', request),
+    api.post<Property>('/property', request, { auth: "required" }),
 
   update: async (id: number, request: CreatePropertyRequest) =>
-    api.put<{ message: string }>(`/api/property/${id}`, request),
+    api.put<{ message: string }>(`/property/${id}`, request, { auth: "required" }),
 
   delete: async (id: number) =>
-    api.delete<{ message: string }>(`/api/property/${id}`)
+    api.delete<{ message: string }>(`/property/${id}`, { auth: "required" })
 }

@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import type { User } from "../../types";
 
@@ -7,9 +8,12 @@ interface UserDropDownProps {
 
 function UserDropDown({ user }: UserDropDownProps) {
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    navigate("/");
+    window.location.reload();
   }
 
   return (
@@ -28,6 +32,7 @@ function UserDropDown({ user }: UserDropDownProps) {
           </a>
         </li>
         <li>
+          <Link to="/my-properties">My Properties</Link>
         </li>
         <li>
           <button
