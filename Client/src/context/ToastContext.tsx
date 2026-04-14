@@ -29,14 +29,26 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     <ToastContext.Provider value={{ addToast }}>
       {children}
       <div className="toast toast-top toast-end z-100">
-        {toasts.map((toast) => (
-          <div key={toast.id} className={`alert alert-${toast.type}`}>
-            {toast.message}
-          </div>
-        ))}
+        {toasts.map((toast) => {
+          const alertClasses = {
+            success: "alert-success",
+            error: "alert-error",
+            info: "alert-info",
+            warning: "alert-warning",
+          };
+
+          return (
+            <div
+              key={toast.id}
+              className={`alert ${alertClasses[toast.type]} shadow-lg text-white`}
+            >
+              <span>{toast.message}</span>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
-  )
+  );
 }
 
 export const useToast = (): ToastContextType => {
