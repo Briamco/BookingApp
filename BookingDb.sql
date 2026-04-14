@@ -96,13 +96,14 @@ create table Review
 	constraint fk_review_user foreign key (guest_id) references Users(id)
 )
 
-create table [Notification]
+create table [Notifications]
 (
 	id int primary key identity(1,1),
 	[user_id] uniqueidentifier not null,
 	title nvarchar(50) not null,
 	[message] nvarchar(max) not null,
 	is_read bit default 0,
+	notification_type int not null constraint df_notification_type default 2,
 	created_at datetime2 default getutcdate()
 
 	constraint fk_notification_user foreign key ([user_id]) references Users(id)
