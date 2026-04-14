@@ -1,4 +1,4 @@
-export type { User } from './User';
+export type { User, LoginRequest, RegisterRequest, LoginResponse } from './User';
 export type { Image } from './Image';
 export type { Property, PropertyDatail } from './Property';
 export type { Reservation } from './Reservation';
