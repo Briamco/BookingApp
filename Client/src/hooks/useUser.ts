@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react"
 import type { User } from "../types"
-import NavBar from "../components/NavBar"
 
-function MainPage() {
+export const useUser = () => {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     setUser(localStorage.getItem("user_data") ? JSON.parse(localStorage.getItem("user_data") as string) : null)
   }, [])
 
-  return (
-    <>
-      <NavBar />
-      <h1 className="text-3xl font-bold underline">
-        Hello, {user ? user.firstName : "Guest"}!
-      </h1>
-    </>
-  )
+  return {
+    user
+  }
 }
-
-export default MainPage
