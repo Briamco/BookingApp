@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { authService } from "../../services/AuthService";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
@@ -8,6 +8,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 function LoginForm() {
   const { addToast } = useToast();
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
@@ -22,6 +23,7 @@ function LoginForm() {
       login(response.token, response.user)
 
       addToast('success', 'Logged in successfully')
+      navigate('/')
     } catch (error: any) {
       addToast('error', error.response?.data || 'Login failed')
     }
