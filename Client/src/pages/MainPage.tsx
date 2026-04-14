@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import type { User } from "../types"
-import NavBar from "../components/NavBar"
 
 function MainPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -11,7 +10,6 @@ function MainPage() {
 
   return (
     <>
-      <NavBar />
       <h1 className="text-3xl font-bold underline">
         Hello, {user ? user.firstName : "Guest"}!
       </h1>

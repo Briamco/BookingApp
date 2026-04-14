@@ -4,11 +4,15 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 import ConfirmCard from "./components/auth/ConfirmCard";
+import PageLayout from "./components/layouts/PageLayout";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: MainPage
+    Component: PageLayout,
+    children: [
+      { path: "", Component: MainPage }
+    ]
   },
   {
     path: "auth",
