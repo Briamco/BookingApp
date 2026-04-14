@@ -54,7 +54,7 @@ create table Images
 	[url] nvarchar(max) not null,
 	[order] int not null
 
-	constraint fk_image_property foreign key (property_id) references Properties(id),
+	constraint fk_image_property foreign key (property_id) references Properties(id) on delete cascade,
 )
 
 create table Reservations
@@ -70,7 +70,7 @@ create table Reservations
 
 	created_at datetime2 default getutcdate(),
 
-	constraint fk_reservation_property foreign key (property_id) references Properties(id),
+	constraint fk_reservation_property foreign key (property_id) references Properties(id) on delete cascade,
 	constraint fk_reservation_guest foreign key (guest_id) references Users(id),
 )
 
@@ -79,7 +79,9 @@ create table BlockedDates
 	id int primary key identity(1,1),
 	property_id int not null,
 	[start_date] date not null,
-	end_date date not null
+	end_date date not null,
+
+	constraint fk_blocked_date_property foreign key (property_id) references Properties(id) on delete cascade
 )
 
 create table Review
@@ -92,7 +94,7 @@ create table Review
 	commentary nvarchar(max),
 	created_at datetime2 default getutcdate()
 
-	constraint fk_review_reservation foreign key (reservation_id) references Reservations(id),
+	constraint fk_review_reservation foreign key (reservation_id) references Reservations(id) on delete cascade,
 	constraint fk_review_user foreign key (guest_id) references Users(id)
 )
 
