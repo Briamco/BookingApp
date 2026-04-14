@@ -69,7 +69,7 @@ public class AuthService
     return "User register. Please check your mail for confirm your account.";
   }
 
-  public async Task<string> LoginAsync(LoginRequest request)
+  public async Task<LoginResponse> LoginAsync(LoginRequest request)
   {
     var user =
       await _userRepository.GetByEmailAsync(request.Email)
@@ -81,7 +81,19 @@ public class AuthService
     if (!_passwordHasher.Verify(request.Password, user.Password))
       throw new Exception("Incorrect credentials");
 
-    return _jwtProvider.GenerateToken(user);
+    return new LoginResponse
+    {
+      Token = _jwtProvider.GenerateToken(user),
+      User = new UserResponse
+      {
+        Id = user.Id,
+        FirstName = user.FirstName,
+        LastName = user.LastName,
+        Email = user.Email,
+        Phone = user.Phone,
+        IsConfirmed = user.IsConfirmed
+      }
+    };
   }
 
   public async Task<bool> ConfirmEmailAsync(string token)

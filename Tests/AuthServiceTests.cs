@@ -152,14 +152,17 @@ public class AuthServiceTests
   }
 
   [Fact]
-  public async Task LoginAsync_WhenCredentialsAreValid_ShouldReturnJwt()
+  public async Task LoginAsync_WhenCredentialsAreValid_ShouldReturnTokenAndUser()
   {
     var (service, userRepository, passwordHasher, jwtProvider, _) = BuildAuthService();
 
     var user = new User
     {
       Id = Guid.NewGuid(),
+      FirstName = "John",
+      LastName = "Doe",
       Email = "user@test.com",
+      Phone = "819-123-4567",
       Password = "hashed-password",
       IsConfirmed = true
     };
@@ -182,9 +185,15 @@ public class AuthServiceTests
       Password = "valid-password"
     };
 
-    var token = await service.LoginAsync(request);
+    var response = await service.LoginAsync(request);
 
-    Assert.Equal("jwt-token", token);
+    Assert.Equal("jwt-token", response.Token);
+    Assert.Equal(user.Id, response.User.Id);
+    Assert.Equal(user.FirstName, response.User.FirstName);
+    Assert.Equal(user.LastName, response.User.LastName);
+    Assert.Equal(user.Email, response.User.Email);
+    Assert.Equal(user.Phone, response.User.Phone);
+    Assert.Equal(user.IsConfirmed, response.User.IsConfirmed);
     jwtProvider.Verify(j => j.GenerateToken(user), Times.Once);
   }
 

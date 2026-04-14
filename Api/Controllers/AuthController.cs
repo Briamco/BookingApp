@@ -34,8 +34,8 @@ public class AuthController(AuthService service, IUserService userService) : Con
   {
     try
     {
-      var token = await _service.LoginAsync(request);
-      return Ok(new { token });
+      var response = await _service.LoginAsync(request);
+      return Ok(response);
     }
     catch (Exception ex)
     {
