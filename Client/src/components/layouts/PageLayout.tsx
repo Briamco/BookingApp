@@ -6,9 +6,9 @@ function PageLayout() {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] min-h-screen bg-base-200">
       <NavBar />
-      <main className="py-6 px-12">
+      <div className="py-6 px-12">
         <Outlet />
-      </main>
+      </div>
       <Footer />
     </div>
   );

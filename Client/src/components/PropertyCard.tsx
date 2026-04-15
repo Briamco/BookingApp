@@ -33,7 +33,7 @@ function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
 
   return (
     <div
-      className="card bg-base-100 w-96 shadow-sm hover:scale-105 transition-transform"
+      className="card h-full w-full bg-base-100 shadow-sm transition-transform hover:-translate-y-1"
       onClick={() => onClick && onClick(property.id)}
     >
       <div className="carousel w-full group">
@@ -61,29 +61,34 @@ function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
           </div>
         )}
       </div>
-      <div className="card-body flex-row items-start justify-between">
+      <div className="card-body gap-4">
         <div className="space-y-2">
-          <div>
-            <h2 className="card-title">{property.title}</h2>
-            <p>{property.description.length > 94 ? `${property.description.substring(0, 94)}...` : property.description}</p>
-          </div>
-          <div className="flex justify-between items-center">
-            <p><span className="font-bold underline text-lg">${property.nightPrice} USD</span> for night.</p>
-            {canBlockDates && <button
-              type="button"
-              className="btn btn-sm btn-outline"
-              onClick={(event) => event.stopPropagation()}
-            >
-              Block dates
-            </button>}
-          </div>
+          <h2 className="card-title text-lg">{property.title}</h2>
+          <p className="text-sm text-base-content/70">
+            {property.description.length > 110 ? `${property.description.substring(0, 110)}...` : property.description}
+          </p>
         </div>
-        <div>
-          <p className="flex gap-2"><StarIcon className="w-5 h-5" /> {property.averageRating}</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm text-base-content/60">Price per night</p>
+            <p className="font-bold underline text-lg">${property.nightPrice} USD</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <p className="flex items-center gap-2 text-sm font-medium"><StarIcon className="h-5 w-5" /> {property.averageRating}</p>
+            {canBlockDates && (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline"
+                onClick={(event) => event.stopPropagation()}
+              >
+                Block dates
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default PropertyCard;
