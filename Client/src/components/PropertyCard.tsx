@@ -36,7 +36,7 @@ function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
       className="card bg-base-100 w-96 shadow-sm hover:scale-105 transition-transform"
       onClick={() => onClick && onClick(property.id)}
     >
-      <div className="carousel w-full">
+      <div className="carousel w-full group">
         {!hasImages ? (
           <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
             <span className="text-gray-500">No Image Available</span>
@@ -51,10 +51,10 @@ function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
               />
             </figure>
             <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-              <button type="button" onClick={goToPrevious} className="btn btn-circle">
+              <button type="button" onClick={goToPrevious} className="btn btn-circle opacity-0 group-hover:opacity-100 transition-opacity">
                 <ChevronLeft />
               </button>
-              <button type="button" onClick={goToNext} className="btn btn-circle">
+              <button type="button" onClick={goToNext} className="btn btn-circle opacity-0 group-hover:opacity-100 transition-opacity">
                 <ChevronRight />
               </button>
             </div>
