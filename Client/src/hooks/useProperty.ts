@@ -39,6 +39,22 @@ export const useProperty = () => {
     return response.message
   }
 
+  const addPropertyImages = async (propertyId: number, images: File[]): Promise<void> => {
+    if (images.length === 0) return
+    await PropertyService.uploadImages(propertyId, images)
+  }
+
+  const reorderPropertyImages = async (propertyId: number, orderedImageIds: number[]): Promise<string> => {
+    if (orderedImageIds.length === 0) return ""
+    const response = await PropertyService.reorderImages(propertyId, orderedImageIds)
+    return response.message
+  }
+
+  const removePropertyImages = async (propertyId: number, imageIds: number[]): Promise<void> => {
+    if (imageIds.length === 0) return
+    await Promise.all(imageIds.map((imageId) => PropertyService.deleteImage(propertyId, imageId)))
+  }
+
   const deletePropery = async (id: number): Promise<string> => {
     const response = await PropertyService.delete(id)
     return response.message
@@ -49,6 +65,9 @@ export const useProperty = () => {
     createProperty,
     fetchProperties,
     updateProperty,
+    addPropertyImages,
+    reorderPropertyImages,
+    removePropertyImages,
     deletePropery
   }
 }

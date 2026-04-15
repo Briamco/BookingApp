@@ -3,6 +3,7 @@ import type { CreatePropertyRequest } from "../../types";
 import { useToast } from "../../context/ToastContext";
 import ImageAggregator from "../ImageAggregator";
 import type { AggregatedImage } from "../ImageAggregator";
+import LocationPickerMap from "../LocationPickerMap";
 
 interface CreatePropertyDialogProps {
   onCreate: (data: CreatePropertyRequest) => Promise<void>;
@@ -139,6 +140,16 @@ function CreatePropertyDialog({ onCreate }: CreatePropertyDialogProps) {
             />
           </div>
 
+          <LocationPickerMap
+            latitude={Number(form.latitude)}
+            longitude={Number(form.longitude)}
+            onLocationChange={(latitude, longitude) => {
+              updateField("latitude", latitude);
+              updateField("longitude", longitude);
+            }}
+            disabled={isSaving}
+          />
+
           <input
             className="input input-bordered w-full"
             placeholder="Country"
@@ -146,6 +157,25 @@ function CreatePropertyDialog({ onCreate }: CreatePropertyDialogProps) {
             onChange={(e) => updateField("country", e.target.value)}
             disabled={isSaving}
           />
+
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="number"
+              className="input input-bordered"
+              placeholder="Latitude"
+              value={Number(form.latitude)}
+              onChange={(e) => updateField("latitude", Number(e.target.value))}
+              disabled={isSaving}
+            />
+            <input
+              type="number"
+              className="input input-bordered"
+              placeholder="Longitude"
+              value={Number(form.longitude)}
+              onChange={(e) => updateField("longitude", Number(e.target.value))}
+              disabled={isSaving}
+            />
+          </div>
 
           <ImageAggregator images={images} onImagesChange={setImages} maxImages={10} disabled={isSaving} />
 

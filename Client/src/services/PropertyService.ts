@@ -32,6 +32,18 @@ export const PropertyService = {
     return Promise.all(uploadPromises);
   },
 
+  reorderImages: async (propertyId: number, orderedImageIds: number[]) => {
+    const imageOrders = orderedImageIds.map((imageId, index) => ({
+      imageId,
+      order: index,
+    }));
+
+    return api.put<{ message: string }>(`/property/${propertyId}/images/reorder`, imageOrders, { auth: "required" });
+  },
+
+  deleteImage: async (propertyId: number, imageId: number) =>
+    api.delete<{ message: string }>(`/property/${propertyId}/images/${imageId}`, { auth: "required" }),
+
   update: async (id: number, request: CreatePropertyRequest) =>
     api.put<{ message: string }>(`/property/${id}`, request, { auth: "required" }),
 
