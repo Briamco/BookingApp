@@ -45,6 +45,6 @@ export interface CreatePropertyRequest {
   capacity: number;
   city: string;
   state: string;
-  coutry: string;
+  country: string;
   images?: File[];
 }

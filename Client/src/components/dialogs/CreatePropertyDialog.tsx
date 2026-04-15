@@ -17,7 +17,7 @@ const initialForm: CreatePropertyRequest = {
   capacity: 1,
   city: "",
   state: "",
-  coutry: "",
+  country: "",
   images: []
 };
 
@@ -142,8 +142,8 @@ function CreatePropertyDialog({ onCreate }: CreatePropertyDialogProps) {
           <input
             className="input input-bordered w-full"
             placeholder="Country"
-            value={form.coutry}
-            onChange={(e) => updateField("coutry", e.target.value)}
+            value={form.country}
+            onChange={(e) => updateField("country", e.target.value)}
             disabled={isSaving}
           />
 
