@@ -16,8 +16,13 @@ function LocationPickerMap({ latitude, longitude, onLocationChange, disabled = f
   const [mapCenter, setMapCenter] = useState(markerPosition ?? DEFAULT_CENTER);
 
   useEffect(() => {
-    setMapCenter(markerPosition ?? DEFAULT_CENTER);
-  }, [latitude, longitude]);
+    if (hasValidLocation) {
+      setMapCenter({ lat: latitude, lng: longitude });
+      return;
+    }
+
+    setMapCenter(DEFAULT_CENTER);
+  }, [hasValidLocation, latitude, longitude]);
 
   const handleMapClick = (event: any) => {
     if (disabled) return;
