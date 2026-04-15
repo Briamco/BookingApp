@@ -44,7 +44,7 @@ function EditPropertyDialog({
       capacity: property.capacity,
       city: property.city,
       state: property.state,
-      country: property.coutry,
+      country: property.country,
     }),
     [property],
   );

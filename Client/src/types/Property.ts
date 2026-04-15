@@ -13,7 +13,7 @@ export interface Property {
   longitude: number;
   city: string;
   state: string;
-  coutry: string;
+  country: string;
   averageRating: number;
   images: Image[]
 }
