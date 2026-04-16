@@ -29,7 +29,7 @@ export interface PropertyDatail {
   longitude: number;
   city: string;
   state: string;
-  coutry: string;
+  country: string;
   averageRating: number;
   reservations: Reservation[];
   blockedDate: BlockedDate[];

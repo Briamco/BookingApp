@@ -5,3 +5,8 @@ export type { Reservation } from './Reservation';
 export type { BlockedDate } from './BlockedDate';
 export type { Review } from './Review';
 export type { Notification } from './Notification';
+
+export interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}

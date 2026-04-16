@@ -6,6 +6,7 @@ import RegisterForm from "./components/auth/RegisterForm";
 import ConfirmCard from "./components/auth/ConfirmCard";
 import PageLayout from "./components/layouts/PageLayout";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
+import PropertyPage from "./pages/PropertyPage";
 
 export const router = createBrowserRouter([
   {
@@ -13,7 +14,8 @@ export const router = createBrowserRouter([
     Component: PageLayout,
     children: [
       { path: "", Component: MainPage },
-      { path: "my-properties", Component: MyPropertiesPage }
+      { path: "my-properties", Component: MyPropertiesPage },
+      { path: "property/:id", Component: PropertyPage }
     ]
   },
   {

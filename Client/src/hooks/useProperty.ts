@@ -19,6 +19,12 @@ export const useProperty = () => {
     fetchProperties()
   }, [])
 
+  const getPropertyById = async (id: number) => {
+    const response = await PropertyService.getById(id);
+
+    return response
+  }
+
   const createProperty = async (request: CreatePropertyRequest) => {
     const response = await PropertyService.create(request)
 
@@ -62,6 +68,7 @@ export const useProperty = () => {
 
   return {
     properties,
+    getPropertyById,
     createProperty,
     fetchProperties,
     updateProperty,
