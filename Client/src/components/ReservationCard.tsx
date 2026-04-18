@@ -1,7 +1,8 @@
 import { ChevronDown, Minus, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import CalenderRange from "./CalenderRange";
 import type { DateRange, PropertyDatail } from "../types"
+import { useNavigate } from "react-router";
+import ReservationCalendarDialog from "./dialogs/ReservationCalendarDialog";
 
 interface ReservationCardProps {
   property: PropertyDatail
@@ -10,6 +11,8 @@ interface ReservationCardProps {
 }
 
 function ReservationCard({ property, selectedDates, onDateChange }: ReservationCardProps) {
+  const navigate = useNavigate();
+
   const [guests, setGuests] = useState(1);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
@@ -42,14 +45,7 @@ function ReservationCard({ property, selectedDates, onDateChange }: ReservationC
   const handleReserve = () => {
     if (!selectedDates) return;
 
-    // navigate("/checkout", {
-    //   state: {
-    //     propertyId: property.id,
-    //     startDate: selectedDates.startDate,
-    //     endDate: selectedDates.endDate,
-    //     guests,
-    //   },
-    // });
+    navigate(`/checkout?propertyId=${property.id}&startDate=${new Date(selectedDates.startDate).toISOString()}&endDate=${new Date(selectedDates.endDate).toISOString()}&guests=${guests}`);
   }
 
   return (
@@ -110,52 +106,15 @@ function ReservationCard({ property, selectedDates, onDateChange }: ReservationC
           </div>
         </div>
 
-        {isCalendarOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4"
-            onClick={closeCalendarModal}
-          >
-            <div
-              className="w-full max-w-3xl rounded-3xl bg-base-100 border border-base-300 shadow-2xl p-5 md:p-6"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="text-3xl font-semibold">{nights > 0 ? `${nights} ${nights === 1 ? "night" : "nights"}` : "Select dates"}</h3>
-                  <p className="text-base-content/70 text-xl">
-                    {selectedDates
-                      ? `${formattedDates.start} - ${formattedDates.end}`
-                      : "Selected dates will appear here"}
-                  </p>
-                </div>
-              </div>
-
-              <CalenderRange
-                value={selectedDates}
-                onChange={onDateChange}
-                months={2}
-                disabledRanges={[...property.reservations, ...property.blockedDates]}
-              />
-
-              <div className="mt-4 flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => onDateChange(null)}
-                >
-                  Clear dates
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={closeCalendarModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ReservationCalendarDialog
+          isOpen={isCalendarOpen}
+          onClose={closeCalendarModal}
+          nights={nights}
+          formattedDates={formattedDates}
+          selectedDates={selectedDates}
+          onDateChange={onDateChange}
+          disabledRanges={[...property.reservations, ...property.blockedDates]}
+        />
 
         <div>
           <button
