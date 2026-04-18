@@ -2,8 +2,10 @@ import { useParams } from "react-router";
 import { useProperty } from "../hooks/useProperty";
 import { useEffect, useState } from "react";
 import type { DateRange, PropertyDatail } from "../types";
-import { AirVent, BookMarked, Car, CookingPot, Star, Tv2, Wifi } from "lucide-react";
+import { AirVent, BookMarked, Car, CookingPot, Home, Star, Tv2, Wifi } from "lucide-react";
 import CalenderRange from "../components/CalenderRange";
+import PropertyMap from "../components/PropertyMap";
+import { AdvancedMarker } from "@vis.gl/react-google-maps";
 
 function PropertyPage() {
   const { id } = useParams();
@@ -28,13 +30,13 @@ function PropertyPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:max-w-6xl mx-auto">
       <h1 className="text-3xl font-semibold">{property.title}</h1>
       <section className="overflow-hidden rounded-2xl grid grid-cols-2 gap-2">
         <img
           src={property.images[0].url}
           alt={`${property.title} - ${property.images[0].order}`}
-          className="object-cover w-full h-102"
+          className="object-cover w-full h-102 lg:h-130"
         />
         <div className="grid grid-cols-2 gap-2">
           {property.images.slice(1).map((image) => (
@@ -42,12 +44,12 @@ function PropertyPage() {
               key={image.id}
               src={image.url}
               alt={`${property.title} - ${image.order}`}
-              className="object-cover w-full h-50"
+              className="object-cover w-full h-50 lg:h-64"
             />
           ))}
         </div>
       </section>
-      <section className="space-y-6">
+      <section className="space-y-6 border-b border-primary/20 pb-14">
         <header>
           <h2 className="text-2xl font-semibold">{property.city}, {property.state}, {property.country}</h2>
           <p>{property.capacity} guests</p>
@@ -81,7 +83,7 @@ function PropertyPage() {
             <p className="flex gap-2"><Car /> Free Parking</p>
           </div>
         </div>
-        <div className="border-b border-primary/20 pb-14">
+        <div>
           <h3 className="text-2xl font-semibold">
             {selectedDates
               ? `${Math.ceil((new Date(selectedDates.endDate).getTime() - new Date(selectedDates.startDate).getTime()) / (1000 * 60 * 60 * 24))} nights in ${property.city}`
@@ -102,6 +104,28 @@ function PropertyPage() {
                 Delete Dates
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div className="border-b border-primary/20 pb-14 space-y-4">
+          <div>
+            <h3 className="text-2xl font-semibold">Where do you go</h3>
+            <p>{property.city}, {property.state}, {property.country}</p>
+          </div>
+          <div className="h-125">
+            <PropertyMap
+              center={{ lat: property.latitude, lng: property.longitude }}
+              zoom={13}
+            >
+              <AdvancedMarker
+                position={{ lat: property.latitude, lng: property.longitude }}
+              >
+                <div className="rounded-full bg-primary p-4">
+                  <Home className="text-primary-content" />
+                </div>
+              </AdvancedMarker>
+            </PropertyMap>
           </div>
         </div>
       </section>
