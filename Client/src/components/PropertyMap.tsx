@@ -1,15 +1,12 @@
-import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
-import { useState } from "react";
-import type { Property } from "../types";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import { type ReactNode } from "react";
 
 interface PropertyMapProps {
-  properties: Property[];
+  children: ReactNode | ReactNode[]
 }
 
-function PropertyMap({ properties }: PropertyMapProps) {
+function PropertyMap({ children }: PropertyMapProps) {
   const defaultCenter = { lat: 18.6245, lng: -68.4820 }
-
-  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
@@ -21,30 +18,7 @@ function PropertyMap({ properties }: PropertyMapProps) {
           disableDefaultUI={true}
           zoomControl={true}
         >
-          {properties.map((property) => {
-            const isSelected = selectedPropertyId === property.id;
-
-            return (
-              <AdvancedMarker
-                key={property.id}
-                position={{ lat: property.latitude, lng: property.longitude }}
-                onClick={() => setSelectedPropertyId(property.id)}
-              >
-                <div
-                  className={`
-                    font-bold py-1 px-3 rounded-full shadow-lg text-sm whitespace-nowrap text-center 
-                    border transition-all duration-300 cursor-pointer
-                    ${isSelected
-                      ? 'bg-black text-white border-black scale-110 z-50'
-                      : 'bg-base-100 border-base-300 hover:scale-105'
-                    }
-                  `}
-                >
-                  ${property.nightPrice}
-                </div>
-              </AdvancedMarker>
-            );
-          })}
+          {children}
         </Map>
       </div>
     </APIProvider>
