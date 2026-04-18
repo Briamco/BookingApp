@@ -6,9 +6,10 @@ interface PropertyCardProps {
   property: Property
   onClick?: (id: number) => void
   canBlockDates?: boolean
+  onBlockDates?: (id: number) => void
 }
 
-function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
+function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: PropertyCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -95,7 +96,11 @@ function PropertyCard({ property, onClick, canBlockDates }: PropertyCardProps) {
               <button
                 type="button"
                 className="btn btn-sm btn-outline"
-                onClick={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onBlockDates?.(property.id)
+                }}
+                aria-label="Block dates"
               >
                 Block dates
               </button>

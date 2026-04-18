@@ -50,6 +50,11 @@ export const useProperty = () => {
     await PropertyService.uploadImages(propertyId, images)
   }
 
+  const blockPropertyDates = async (propertyId: number, request: { startDate: string; endDate: string }): Promise<string> => {
+    const response = await PropertyService.blockDates(propertyId, request)
+    return response.message
+  }
+
   const reorderPropertyImages = async (propertyId: number, orderedImageIds: number[]): Promise<string> => {
     if (orderedImageIds.length === 0) return ""
     const response = await PropertyService.reorderImages(propertyId, orderedImageIds)
@@ -73,6 +78,7 @@ export const useProperty = () => {
     fetchProperties,
     updateProperty,
     addPropertyImages,
+    blockPropertyDates,
     reorderPropertyImages,
     removePropertyImages,
     deletePropery

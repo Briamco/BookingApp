@@ -44,6 +44,9 @@ export const PropertyService = {
   deleteImage: async (propertyId: number, imageId: number) =>
     api.delete<{ message: string }>(`/property/${propertyId}/images/${imageId}`, { auth: "required" }),
 
+  blockDates: async (propertyId: number, request: { startDate: string; endDate: string }) =>
+    api.post<{ message: string; blockedDateId: number }>(`/property/${propertyId}/blockDate`, request, { auth: "required" }),
+
   update: async (id: number, request: CreatePropertyRequest) =>
     api.put<{ message: string }>(`/property/${id}`, request, { auth: "required" }),
 
