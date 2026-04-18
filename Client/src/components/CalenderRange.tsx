@@ -4,16 +4,29 @@ import type { DateRange } from "../types";
 interface CalenderRangeProps {
   value?: DateRange | null;
   onChange?: (value: DateRange | null) => void;
+  months?: number;
+  disabledRanges?: Array<{
+    startDate: Date | string;
+    endDate: Date | string;
+  }>;
 }
 
-function CalenderRange({ value, onChange }: CalenderRangeProps) {
+function CalenderRange({ value, onChange, months = 2, disabledRanges = [] }: CalenderRangeProps) {
+  const formatDate = (date: Date | string) => {
+    const parsedDate = new Date(date);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   const parseDate = (dateString: string) => {
     const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
 
   const onChangeHandle = (event: Event) => {
-    console.log("Calendar changed:", (event.target as HTMLInputElement)?.value as string);
     const [start, end] = ((event.target as HTMLInputElement)?.value as string).split("/");
     if (start && end && onChange) {
       onChange({
@@ -26,21 +39,24 @@ function CalenderRange({ value, onChange }: CalenderRangeProps) {
   }
 
   const isDateDisallowed = (date: Date) => {
-    const blocked = ["2026-04-16", "2026-04-17"];
+    const currentDate = formatDate(date);
 
-    const formatted = date.toISOString().split("T")[0];
+    return disabledRanges.some(({ startDate, endDate }) => {
+      const start = formatDate(startDate);
+      const end = formatDate(endDate);
 
-    return blocked.includes(formatted);
+      return currentDate >= start && currentDate <= end;
+    });
   };
 
   return (
     <div className="w-full">
       <calendar-range
-        value={value ? `${new Date(value.startDate).toISOString().split("T")[0]}/${new Date(value.endDate).toISOString().split("T")[0]}` : ""}
+        value={value ? `${formatDate(value.startDate)}/${formatDate(value.endDate)}` : ""}
         className="cally w-full"
-        min={new Date().toISOString().split("T")[0]}
+        min={formatDate(new Date())}
         onchange={onChangeHandle}
-        months={2}
+        months={months}
         locale="es-DO"
         isDateDisallowed={isDateDisallowed}
       >
@@ -48,7 +64,7 @@ function CalenderRange({ value, onChange }: CalenderRangeProps) {
         <ArrowRight className="w-6 h-6" slot="next" aria-label="Next" />
         <div className="flex gap-4 flex-row w-full justify-center">
           <calendar-month></calendar-month>
-          <calendar-month offset={1}></calendar-month>
+          {months > 1 && <calendar-month offset={1}></calendar-month>}
         </div>
       </calendar-range>
     </div>

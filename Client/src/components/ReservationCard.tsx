@@ -1,0 +1,174 @@
+import { ChevronDown, Minus, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import CalenderRange from "./CalenderRange";
+import type { DateRange, PropertyDatail } from "../types"
+
+interface ReservationCardProps {
+  property: PropertyDatail
+  selectedDates: DateRange | null
+  onDateChange: (value: DateRange | null) => void
+}
+
+function ReservationCard({ property, selectedDates, onDateChange }: ReservationCardProps) {
+  const [guests, setGuests] = useState(1);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  const closeCalendarModal = () => setIsCalendarOpen(false);
+
+  const formattedDates = useMemo(() => {
+    if (!selectedDates) {
+      return {
+        start: "--/--/----",
+        end: "--/--/----",
+      };
+    }
+
+    return {
+      start: new Date(selectedDates.startDate).toLocaleDateString("es-DO"),
+      end: new Date(selectedDates.endDate).toLocaleDateString("es-DO"),
+    };
+  }, [selectedDates]);
+
+  const nights = selectedDates
+    ? Math.max(
+      1,
+      Math.ceil(
+        (new Date(selectedDates.endDate).getTime() - new Date(selectedDates.startDate).getTime())
+        / (1000 * 60 * 60 * 24),
+      ),
+    )
+    : 0;
+
+  const handleReserve = () => {
+    if (!selectedDates) return;
+
+    // navigate("/checkout", {
+    //   state: {
+    //     propertyId: property.id,
+    //     startDate: selectedDates.startDate,
+    //     endDate: selectedDates.endDate,
+    //     guests,
+    //   },
+    // });
+  }
+
+  return (
+    <div className="card card-lg w-96 bg-base-100 border border-base-300 shadow-lg rounded-2xl">
+      <div className="card-body p-6 gap-4">
+        <h2 className="text-3xl font-semibold">
+          <span className="underline">${nights > 0 ? property.nightPrice * nights : property.nightPrice} USD</span>
+          <span className="text-2xl font-normal"> for {nights > 0 ? `${nights} ${nights === 1 ? "night" : "nights"}` : "night"}</span>
+        </h2>
+
+        <div className="rounded-2xl border border-base-300 overflow-hidden">
+          <button
+            type="button"
+            className="w-full grid grid-cols-2 divide-x divide-base-300 border-b border-base-300 text-left"
+            onClick={() => setIsCalendarOpen(true)}
+          >
+            <div className="p-3">
+              <p className="text-xs font-bold">CHECK-IN</p>
+              <p className="text-xl">{formattedDates.start}</p>
+            </div>
+            <div className="p-3">
+              <p className="text-xs font-bold">CHECK-OUT</p>
+              <p className="text-xl">{formattedDates.end}</p>
+            </div>
+          </button>
+
+          <div className="p-3 flex items-center justify-between gap-3 border-b border-base-300">
+            <div>
+              <p className="text-xs font-bold">GUESTS</p>
+              <p className="text-xl">{guests} {guests === 1 ? "guest" : "guests"}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="btn btn-circle btn-sm btn-ghost"
+                onClick={() => setGuests((prev) => Math.max(1, prev - 1))}
+                aria-label="Decrement guests"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                className="btn btn-circle btn-sm btn-ghost"
+                onClick={() => setGuests((prev) => Math.min(property.capacity, prev + 1))}
+                aria-label="Increment guests"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                className="btn btn-circle  btn-sm btn-ghost"
+                onClick={() => setIsCalendarOpen(true)}
+                aria-label="Abrir calendario"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {isCalendarOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4"
+            onClick={closeCalendarModal}
+          >
+            <div
+              className="w-full max-w-3xl rounded-3xl bg-base-100 border border-base-300 shadow-2xl p-5 md:p-6"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-3xl font-semibold">{nights > 0 ? `${nights} ${nights === 1 ? "night" : "nights"}` : "Select dates"}</h3>
+                  <p className="text-base-content/70 text-xl">
+                    {selectedDates
+                      ? `${formattedDates.start} - ${formattedDates.end}`
+                      : "Selected dates will appear here"}
+                  </p>
+                </div>
+              </div>
+
+              <CalenderRange
+                value={selectedDates}
+                onChange={onDateChange}
+                months={2}
+                disabledRanges={[...property.reservations, ...property.blockedDates]}
+              />
+
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => onDateChange(null)}
+                >
+                  Clear dates
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={closeCalendarModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <button
+            className="btn btn-primary btn-block btn-xl rounded-full"
+            disabled={!selectedDates}
+            onClick={handleReserve}
+          >
+            Reserve
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ReservationCard

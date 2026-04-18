@@ -32,7 +32,7 @@ export interface PropertyDatail {
   country: string;
   averageRating: number;
   reservations: Reservation[];
-  blockedDate: BlockedDate[];
+  blockedDates: BlockedDate[];
   images: Image[];
 }
 
