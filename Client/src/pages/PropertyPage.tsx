@@ -51,12 +51,12 @@ function PropertyPage() {
         </div>
       </section>
       <section className="space-y-6 border-b border-primary/20 pb-14 flex gap-24 items-start">
-        <div className="w-full">
+        <div className="w-full space-y-6">
           <header>
             <h2 className="text-2xl font-semibold">{property.city}, {property.state}, {property.country}</h2>
             <p>{property.capacity} guests</p>
           </header>
-          <div className="stats shadow w-full mb-10">
+          <div className="stats bg-base-100 shadow w-full mb-10">
             <div className="stat">
               <div className="stat-figure text-warning">
                 <Star className="w-8 h-8" />
