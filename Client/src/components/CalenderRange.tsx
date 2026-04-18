@@ -34,19 +34,22 @@ function CalenderRange({ value, onChange }: CalenderRangeProps) {
   };
 
   return (
-    <div className="w-fit">
+    <div className="w-full">
       <calendar-range
         value={value ? `${new Date(value.startDate).toISOString().split("T")[0]}/${new Date(value.endDate).toISOString().split("T")[0]}` : ""}
-        className="cally w-fit"
+        className="cally w-full"
         min={new Date().toISOString().split("T")[0]}
         onchange={onChangeHandle}
-        months={1}
+        months={2}
         locale="es-DO"
         isDateDisallowed={isDateDisallowed}
       >
         <ArrowLeft className="w-6 h-6" slot="previous" aria-label="Previous" />
         <ArrowRight className="w-6 h-6" slot="next" aria-label="Next" />
-        <calendar-month></calendar-month>
+        <div className="flex gap-4 flex-row w-full justify-center">
+          <calendar-month></calendar-month>
+          <calendar-month offset={1}></calendar-month>
+        </div>
       </calendar-range>
     </div>
   )
