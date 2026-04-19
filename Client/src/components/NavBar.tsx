@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Bell, Search, Calendar as CalendarIcon, Plus, Minus } from "lucide-react";
@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import CalenderRange from "./CalenderRange";
 import type { DateRange } from "../types";
+import { useProperty } from "../hooks/useProperty";
 
 const formatToYYYYMMDD = (date: Date): string => {
   const year = date.getFullYear();
@@ -27,8 +28,9 @@ const dateFromQueryParam = (value: string | null): Date | null => {
 const MAX_GUESTS = 16;
 
 function NavBar() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { unreadCount } = useNotification();
+  const { properties } = useProperty();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -40,6 +42,13 @@ function NavBar() {
   const [showGuestPopover, setShowGuestPopover] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const guestRef = useRef<HTMLDivElement>(null);
+
+  const hasPublishedProperties = useMemo(() => {
+    if (!user) return false;
+
+    const currentUserId = user.id.toLowerCase();
+    return properties.some((property) => property.hostId.toLowerCase() === currentUserId);
+  }, [properties, user]);
 
   useEffect(() => {
     setDestination(searchParams.get("location") ?? "");
@@ -259,14 +268,21 @@ function NavBar() {
         </form>
 
         {/* Right Actions */}
-        <div className="shrink-0 flex gap-2">
+        <div className="shrink-0 flex items-center gap-2">
           {isAuthenticated && (
-            <Link to="/my-notifications" className="btn btn-ghost btn-circle">
-              <div className="indicator">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && <span className="indicator-item badge badge-error badge-sm">{unreadCount}</span>}
-              </div>
-            </Link>
+            <>
+              {!hasPublishedProperties && (
+                <Link to="/my-properties" className="btn btn-ghost rounded-full hidden md:inline-flex">
+                  Become a host
+                </Link>
+              )}
+              <Link to="/my-notifications" className="btn btn-ghost btn-circle">
+                <div className="indicator">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && <span className="indicator-item badge badge-error badge-sm animate-bounce">{unreadCount}</span>}
+                </div>
+              </Link>
+            </>
           )}
           <LoginButton />
         </div>
