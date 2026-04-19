@@ -1,16 +1,46 @@
-import { useNavigate } from "react-router"
+import { AdvancedMarker } from "@vis.gl/react-google-maps"
+import { useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router"
 import PropertyCard from "../components/PropertyCard"
 import PropertyMap from "../components/PropertyMap"
 import { useProperty } from "../hooks/useProperty"
-import { AdvancedMarker } from "@vis.gl/react-google-maps"
-import { useState } from "react"
+
+const parseDate = (value: string | null) => {
+  if (!value) return undefined;
+
+  // If it's in yyyy-mm-dd format, parse it directly to avoid timezone issues
+  const dateMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateMatch) {
+    const [, year, month, day] = dateMatch;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!Number.isNaN(date.getTime())) {
+      return date;
+    }
+  }
+
+  // Otherwise try to parse as ISO string
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+
+  return date;
+};
 
 function MainPage() {
-  const { properties } = useProperty()
+  const { properties, fetchProperties } = useProperty()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
 
+  useEffect(() => {
+    const location = searchParams.get("location") ?? undefined;
+    const guests = searchParams.get("guests") ?? searchParams.get("minCapcity");
+    const minCapacity = guests && !Number.isNaN(Number(guests)) ? Number(guests) : undefined;
+    const startDate = parseDate(searchParams.get("startDate"));
+    const endDate = parseDate(searchParams.get("endDate"));
+
+    fetchProperties(location, undefined, minCapacity, startDate, endDate);
+  }, [fetchProperties, searchParams]);
 
   return (
     <main className="mx-auto w-full max-w-600 px-4 py-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,48%)] lg:gap-6">

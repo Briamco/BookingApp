@@ -8,8 +8,8 @@ export const PropertyService = {
     if (location) params.append('location', location);
     if (maxPrice !== undefined) params.append('maxPrice', maxPrice.toString());
     if (minCapcity !== undefined) params.append('minCapcity', minCapcity.toString());
-    if (startDate) params.append('startDate', startDate.toISOString());
-    if (endDate) params.append('endDate', endDate.toISOString());
+    if (startDate) params.append('startDate', startDate.toISOString().split('T')[0]);
+    if (endDate) params.append('endDate', endDate.toISOString().split('T')[0]);
 
     return await api.get<Property[]>(`/property?${params.toString()}`)
   },

@@ -8,16 +8,16 @@ export const useProperty = () => {
 
   const [properties, setProperties] = useState<Property[]>([])
 
-  const fetchProperties = async (location?: string, maxPrice?: number, minCapcity?: number, startDate?: Date, endDate?: Date) => {
+  const fetchProperties = useCallback(async (location?: string, maxPrice?: number, minCapcity?: number, startDate?: Date, endDate?: Date) => {
     const response = await PropertyService.getAll(location, maxPrice, minCapcity, startDate, endDate)
 
     if (response)
       setProperties(response || [])
-  }
+  }, [])
 
   useEffect(() => {
     fetchProperties()
-  }, [])
+  }, [fetchProperties])
 
   const getPropertyById = useCallback(async (id: number) => {
     const response = await PropertyService.getById(id);
