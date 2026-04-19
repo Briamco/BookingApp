@@ -113,7 +113,7 @@ function HostReservationsPage() {
                               Reservation #{reservation.id}
                             </p>
                             <p className="text-base font-medium">
-                              {new Date(reservation.startDate).toLocaleDateString("es-DO")} - {new Date(reservation.endDate).toLocaleDateString("es-DO")}
+                              {new Date(reservation.startDate).toDateString()} - {new Date(reservation.endDate).toDateString()}
                             </p>
                             <p className="text-sm text-base-content/60">Guest: {reservation.guestId}</p>
                           </div>

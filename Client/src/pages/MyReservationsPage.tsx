@@ -106,7 +106,7 @@ function MyReservationsPage() {
                   <div>
                     <h2 className="text-2xl font-semibold">{reservation.propertyTitle}</h2>
                     <p className="text-base-content/70">
-                      {new Date(reservation.startDate).toLocaleDateString("es-DO")} - {new Date(reservation.endDate).toLocaleDateString("es-DO")}
+                      {new Date(reservation.startDate).toDateString()} - {new Date(reservation.endDate).toDateString()}
                     </p>
                     <p className="mt-2 text-sm uppercase tracking-wide text-base-content/60">{reservation.status}</p>
                   </div>
