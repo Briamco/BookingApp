@@ -20,6 +20,10 @@ function PropertyPage() {
   const [property, setProperty] = useState<PropertyDatail | null>(null);
   const [selectedDates, setSelectedDates] = useState<DateRange | null>(null);
 
+  const activeReservationRanges = property?.reservations.filter(
+    (reservation) => reservation.status !== "Canceled" && reservation.status !== "Cancelled",
+  ) ?? [];
+
   useEffect(() => {
     setSelectedDates(startDate && endDate ? { startDate: new Date(startDate), endDate: new Date(endDate) } : null);
   }, [startDate, endDate, guestsParam])
@@ -109,7 +113,7 @@ function PropertyPage() {
               <CalenderRange
                 value={selectedDates}
                 onChange={setSelectedDates}
-                disabledRanges={[...property.reservations, ...property.blockedDates]}
+                disabledRanges={[...activeReservationRanges, ...property.blockedDates]}
               />
               <div className="flex justify-end">
                 <button

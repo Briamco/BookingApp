@@ -16,6 +16,12 @@ function ReservationCard({ property, selectedDates, onDateChange, startGuests }:
 
   const [guests, setGuests] = useState(startGuests || 1);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const activeReservationRanges = useMemo(
+    () => property.reservations.filter(
+      (reservation) => reservation.status !== "Canceled" && reservation.status !== "Cancelled",
+    ),
+    [property.reservations],
+  );
 
   const closeCalendarModal = () => setIsCalendarOpen(false);
 
@@ -114,7 +120,7 @@ function ReservationCard({ property, selectedDates, onDateChange, startGuests }:
           formattedDates={formattedDates}
           selectedDates={selectedDates}
           onDateChange={onDateChange}
-          disabledRanges={[...property.reservations, ...property.blockedDates]}
+          disabledRanges={[...activeReservationRanges, ...property.blockedDates]}
         />
 
         <div>

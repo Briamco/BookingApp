@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { CreatePropertyRequest, Property } from "../types"
 import { PropertyService } from "../services/PropertyService"
 import { useToast } from "../context/ToastContext"
@@ -19,11 +19,11 @@ export const useProperty = () => {
     fetchProperties()
   }, [])
 
-  const getPropertyById = async (id: number) => {
+  const getPropertyById = useCallback(async (id: number) => {
     const response = await PropertyService.getById(id);
 
     return response
-  }
+  }, [])
 
   const createProperty = async (request: CreatePropertyRequest) => {
     const response = await PropertyService.create(request)

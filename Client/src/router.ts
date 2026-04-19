@@ -10,6 +10,7 @@ import PropertyPage from "./pages/PropertyPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
 import MyNotificationsPage from "./pages/MyNotificationsPage";
+import HostReservationsPage from "./pages/HostReservationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "", Component: MainPage },
       { path: "my-properties", Component: MyPropertiesPage },
+      { path: "host-reservations", Component: HostReservationsPage },
       { path: "property/:id", Component: PropertyPage },
       { path: "my-reservations", Component: MyReservationsPage },
       { path: "my-notifications", Component: MyNotificationsPage }
