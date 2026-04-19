@@ -9,6 +9,7 @@ import MyPropertiesPage from "./pages/MyPropertiesPage";
 import PropertyPage from "./pages/PropertyPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
+import MyNotificationsPage from "./pages/MyNotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,7 +19,8 @@ export const router = createBrowserRouter([
       { path: "", Component: MainPage },
       { path: "my-properties", Component: MyPropertiesPage },
       { path: "property/:id", Component: PropertyPage },
-      { path: "my-reservations", Component: MyReservationsPage }
+      { path: "my-reservations", Component: MyReservationsPage },
+      { path: "my-notifications", Component: MyNotificationsPage }
     ]
   },
   {

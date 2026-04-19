@@ -1,6 +1,7 @@
 using BookingApp.Application.Intefaces.Services;
 using System.Security.Claims;
 using System.Net;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace BookingApp.Api.Middlewares;
 
@@ -31,7 +32,10 @@ public class WebSocketMiddleware
         var pathSegments = context.Request.Path.Value?.Split('/') ?? Array.Empty<string>();
         if (pathSegments.Length > 0 && Guid.TryParse(pathSegments[^1], out var userId))
         {
-          var authenticatedUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+          var authenticatedUserId =
+            context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
           if (!string.IsNullOrWhiteSpace(authenticatedUserId) &&
               Guid.TryParse(authenticatedUserId, out var currentUserId) &&
               currentUserId != userId)
