@@ -18,7 +18,7 @@ function NavBar() {
           <Link to="/my-notifications" className="btn btn-ghost btn-circle">
             <div className="indicator">
               <Bell className="h-5 w-5" />
-              {unreadCount > 0 && <span className="indicator-item badge badge-primary badge-sm">{unreadCount}</span>}
+              {unreadCount > 0 && <span className="indicator-item badge badge-error badge-sm">{unreadCount}</span>}
             </div>
           </Link>
         )}
