@@ -88,10 +88,10 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-base-content/60">Price per night</p>
-            <p className="font-bold underline text-lg">${property.nightPrice} USD</p>
+            <p className="font-bold underline text-lg text-primary">${property.nightPrice} USD</p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <p className="flex items-center gap-2 text-sm font-medium"><StarIcon className="h-5 w-5" /> {property.averageRating}</p>
+            <p className="flex items-center gap-2 text-sm font-medium"><StarIcon className="h-5 w-5 text-warning" /> {property.averageRating}</p>
             {canBlockDates && (
               <button
                 type="button"
