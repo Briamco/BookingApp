@@ -3,7 +3,7 @@ import { useProperty } from "../hooks/useProperty";
 import type { DateRange, PropertyDatail } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { useToast } from "../context/ToastContext";
-import { Star } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import ReservationCalendarDialog from "../components/dialogs/ReservationCalendarDialog";
 import GuestCountDialog from "../components/dialogs/GuestCountDialog";
 
@@ -16,7 +16,7 @@ function CheckoutPage() {
   const endDate = searchParams.get("endDate");
   const guestsParam = searchParams.get("guests");
 
-  const { getPropertyById } = useProperty();
+  const { getPropertyById, reservateProperty } = useProperty();
   const { addToast } = useToast();
 
   const [property, setProperty] = useState<PropertyDatail | null>(null);
@@ -62,6 +62,15 @@ function CheckoutPage() {
     };
   }, [selectedDates]);
 
+  const formatDate = (date: Date | string) => {
+    const parsedDate = new Date(date);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   useEffect(() => {
     setNights(selectedDates
       ? Math.max(
@@ -75,14 +84,29 @@ function CheckoutPage() {
   }, [selectedDates])
 
   const handleConfirmReserve = () => {
-    addToast("success", `Your reservation at ${property?.title} from ${selectedDates?.startDate.toLocaleDateString("es-DO")} to ${selectedDates?.endDate.toLocaleDateString("es-DO")} for ${guests} guests has been confirmed.`);
+    if (!property || !selectedDates) {
+      addToast("error", "Failed to confirm reservation. Please try again.");
+      return;
+    }
 
-    //Logic to create reservation in the backend would go here
-
+    reservateProperty(property.id, {
+      startDate: formatDate(selectedDates.startDate),
+      endDate: formatDate(selectedDates.endDate),
+    }).then((message) => {
+      addToast("success", message || "Reservation successful");
+      addToast("info", `Your reservation at ${property?.title} from ${selectedDates?.startDate.toLocaleDateString("es-DO")} to ${selectedDates?.endDate.toLocaleDateString("es-DO")} for ${guests} guests has been confirmed.`);
+      navigate("/");
+    }).catch(() => {
+      addToast("error", "Failed to confirm reservation. Please try again.");
+    });
   }
 
   if (!property) {
     return <div>Loading...</div>;
+  }
+
+  const handleReturnToProperty = () => {
+    navigate(`/property/${property.id}?startDate=${selectedDates?.startDate.toISOString()}&endDate=${selectedDates?.endDate.toISOString()}&guests=${guests}`);
   }
 
   const handleChangeDetails = () => {
@@ -101,59 +125,67 @@ function CheckoutPage() {
 
   return (
     <div className="grid h-screen place-items-center bg-base-200">
-      <div className="card card-xl w-110 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <div className="flex items-center gap-4 border-b border-base-300 pb-5">
-            <img
-              src={property.images[0].url}
-              alt={`${property.title}-${property.images[0].order}`}
-              className="w-35 aspect-square object-cover rounded-lg"
-            />
-            <div>
-              <h1 className="card-title">{property?.title}</h1>
-              <span className="flex gap-2 text-sm font-semibold"><Star className="text-warning w-5 h-5" /> {property?.averageRating.toFixed(1)} ({property.averageRating})</span>
-            </div>
-          </div>
-          <div className="border-b border-base-300 pb-5">
-            <h2 className="font-semibold">Dates</h2>
-            <div className="flex justify-between">
-              <span>{selectedDates?.startDate.toDateString()} - {selectedDates?.endDate.toDateString()}</span>
-              <button
-                className="btn btn-xs"
-                onClick={() => setIsCalendarOpen(true)}
-              >
-                Change
-              </button>
-            </div>
-          </div>
-          <div className="border-b border-base-300 pb-5">
-            <div className="flex items-center justify-between gap-3">
+      <div className="flex gap-10">
+        <button
+          className="btn btn-circle bg-base-100"
+          onClick={handleReturnToProperty}
+        >
+          <ArrowLeft />
+        </button>
+        <div className="card card-xl w-110 bg-base-100 shadow-xl">
+          <div className="card-body">
+            <div className="flex items-center gap-4 border-b border-base-300 pb-5">
+              <img
+                src={property.images[0].url}
+                alt={`${property.title}-${property.images[0].order}`}
+                className="w-35 aspect-square object-cover rounded-lg"
+              />
               <div>
-                <h2 className="font-semibold">Guests</h2>
-                <span>{guests} {guests === 1 ? "guest" : "guests"}</span>
+                <h1 className="card-title">{property?.title}</h1>
+                <span className="flex gap-2 text-sm font-semibold"><Star className="text-warning w-5 h-5" /> {property?.averageRating.toFixed(1)} ({property.averageRating})</span>
               </div>
+            </div>
+            <div className="border-b border-base-300 pb-5">
+              <h2 className="font-semibold">Dates</h2>
+              <div className="flex justify-between">
+                <span>{selectedDates?.startDate.toDateString()} - {selectedDates?.endDate.toDateString()}</span>
+                <button
+                  className="btn btn-xs"
+                  onClick={() => setIsCalendarOpen(true)}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+            <div className="border-b border-base-300 pb-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold">Guests</h2>
+                  <span>{guests} {guests === 1 ? "guest" : "guests"}</span>
+                </div>
+                <button
+                  className="btn btn-xs"
+                  onClick={openGuestModal}
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+            <div className="pb-5">
+              <h2 className="font-semibold">Price details</h2>
+              <div className="flex justify-between">
+                <span>{nights} {nights === 1 ? "night" : "nights"} x ${property?.nightPrice} USD</span>
+                <span className="font-semibold">${property.nightPrice * nights} USD</span>
+              </div>
+            </div>
+            <div>
               <button
-                className="btn btn-xs"
-                onClick={openGuestModal}
+                className="btn btn-xl btn-primary btn-block mt-6"
+                onClick={handleConfirmReserve}
               >
-                Change
+                Confirm Reservation
               </button>
             </div>
-          </div>
-          <div className="pb-5">
-            <h2 className="font-semibold">Price details</h2>
-            <div className="flex justify-between">
-              <span>{nights} {nights === 1 ? "night" : "nights"} x ${property?.nightPrice} USD</span>
-              <span className="font-semibold">${property.nightPrice * nights} USD</span>
-            </div>
-          </div>
-          <div>
-            <button
-              className="btn btn-xl btn-primary btn-block mt-6"
-              onClick={handleConfirmReserve}
-            >
-              Confirm Reservation
-            </button>
           </div>
         </div>
       </div>

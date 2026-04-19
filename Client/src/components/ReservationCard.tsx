@@ -8,12 +8,13 @@ interface ReservationCardProps {
   property: PropertyDatail
   selectedDates: DateRange | null
   onDateChange: (value: DateRange | null) => void
+  startGuests: number | null
 }
 
-function ReservationCard({ property, selectedDates, onDateChange }: ReservationCardProps) {
+function ReservationCard({ property, selectedDates, onDateChange, startGuests }: ReservationCardProps) {
   const navigate = useNavigate();
 
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState(startGuests || 1);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const closeCalendarModal = () => setIsCalendarOpen(false);

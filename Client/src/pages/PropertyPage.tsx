@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { useProperty } from "../hooks/useProperty";
 import { useEffect, useState } from "react";
 import type { DateRange, PropertyDatail } from "../types";
@@ -9,11 +9,20 @@ import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import ReservationCard from "../components/ReservationCard";
 
 function PropertyPage() {
+  const [searchParams] = useSearchParams();
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
+  const guestsParam = searchParams.get("guests");
+
   const { id } = useParams();
   const { getPropertyById } = useProperty();
 
   const [property, setProperty] = useState<PropertyDatail | null>(null);
   const [selectedDates, setSelectedDates] = useState<DateRange | null>(null);
+
+  useEffect(() => {
+    setSelectedDates(startDate && endDate ? { startDate: new Date(startDate), endDate: new Date(endDate) } : null);
+  }, [startDate, endDate, guestsParam])
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -118,6 +127,7 @@ function PropertyPage() {
             property={property}
             selectedDates={selectedDates}
             onDateChange={setSelectedDates}
+            startGuests={Number(guestsParam)}
           />
         </div>
       </section>

@@ -47,6 +47,9 @@ export const PropertyService = {
   blockDates: async (propertyId: number, request: { startDate: string; endDate: string }) =>
     api.post<{ message: string; blockedDateId: number }>(`/property/${propertyId}/blockDate`, request, { auth: "required" }),
 
+  reservate: async (propertyId: number, request: { startDate: string, endDate: string }) =>
+    api.post<{ message: string; reservationId: number }>(`/property/${propertyId}/reservate`, request, { auth: "required" }),
+
   update: async (id: number, request: CreatePropertyRequest) =>
     api.put<{ message: string }>(`/property/${id}`, request, { auth: "required" }),
 
