@@ -35,6 +35,9 @@ function UserDropDown({ user }: UserDropDownProps) {
           <Link to="/my-properties">My Properties</Link>
         </li>
         <li>
+          <Link to="/my-reservations">My Reservations</Link>
+        </li>
+        <li>
           <button
             className="text-error"
             onClick={handleLogout}

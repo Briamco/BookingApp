@@ -20,6 +20,7 @@ public class ReservationRepository : IReservationRepository
   public async Task<IEnumerable<Reservation>> GetByGuestIdAsync(Guid guestId)
   {
     return await _context.Reservations
+      .Include(r => r.Review)
       .Where(r => r.GuestId == guestId)
       .OrderByDescending(r => r.CreatedAt)
       .ToListAsync();

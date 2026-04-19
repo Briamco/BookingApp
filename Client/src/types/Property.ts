@@ -1,6 +1,7 @@
 import type { BlockedDate } from "./BlockedDate";
 import type { Image } from "./Image";
 import type { Reservation } from "./Reservation";
+import type { Review } from "./Review";
 
 export interface Property {
   id: number;
@@ -33,6 +34,7 @@ export interface PropertyDatail {
   averageRating: number;
   reservations: Reservation[];
   blockedDates: BlockedDate[];
+  reviews: Review[];
   images: Image[];
 }
 

@@ -1,3 +1,5 @@
+using BookingApp.Application.DTOs;
+
 namespace BookingApp.Application.DTOs.Property;
 
 public class PropertyDetailResponse
@@ -16,5 +18,6 @@ public class PropertyDetailResponse
   public double AverageRating { get; set; }
   public ICollection<PropertyReservationResponse> Reservations { get; set; } = [];
   public ICollection<PropertyBlockedDateResponse> BlockedDates { get; set; } = [];
+  public ICollection<ReviewResponse> Reviews { get; set; } = [];
   public ICollection<Domain.Entities.Image> Images { get; set; } = [];
 }

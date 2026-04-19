@@ -78,7 +78,7 @@ function PropertyPage() {
                 <BookMarked className="w-8 h-8" />
               </div>
               <div className="stat-title">Reviews</div>
-              <div className="stat-value">{property.averageRating}</div>
+              <div className="stat-value">{property.reviews.length}</div>
             </div>
           </div>
           <div className="border-y border-primary/20 py-14">
@@ -130,6 +130,32 @@ function PropertyPage() {
             startGuests={Number(guestsParam)}
           />
         </div>
+      </section>
+      <section className="space-y-4 border-b border-primary/20 pb-14">
+        <div>
+          <h3 className="text-2xl font-semibold">Reviews</h3>
+          <p className="text-base-content/70">{property.reviews.length} reviews from guests</p>
+        </div>
+        {property.reviews.length === 0 ? (
+          <p className="text-base-content/70">This property does not have reviews yet.</p>
+        ) : (
+          <div className="grid gap-4">
+            {property.reviews.map((review) => (
+              <article key={review.id} className="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <Star className="h-5 w-5 text-warning" />
+                    <span>{review.rate}/5</span>
+                  </div>
+                  <span className="text-sm text-base-content/60">
+                    {new Date(review.createdAt).toLocaleDateString("es-DO")}
+                  </span>
+                </div>
+                <p className="mt-3 text-base-content/80">{review.commentary}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
       <section>
         <div className="border-b border-primary/20 pb-14 space-y-4">

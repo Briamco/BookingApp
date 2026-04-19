@@ -8,6 +8,7 @@ import PageLayout from "./components/layouts/PageLayout";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
 import PropertyPage from "./pages/PropertyPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import MyReservationsPage from "./pages/MyReservationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +17,8 @@ export const router = createBrowserRouter([
     children: [
       { path: "", Component: MainPage },
       { path: "my-properties", Component: MyPropertiesPage },
-      { path: "property/:id", Component: PropertyPage }
+      { path: "property/:id", Component: PropertyPage },
+      { path: "my-reservations", Component: MyReservationsPage }
     ]
   },
   {

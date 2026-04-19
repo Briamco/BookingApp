@@ -164,6 +164,21 @@ public class PropertyService
           EndDate = b.EndDate
         })
         .ToList(),
+      Reviews = p.Reservations
+        .Select(r => r.Review)
+        .OfType<Review>()
+        .OrderByDescending(review => review.CreatedAt)
+        .Select(review => new ReviewResponse
+        {
+          Id = review.Id,
+          ReservationId = review.ReservationId,
+          PropertyId = p.Id,
+          GuestId = review.GuestId,
+          Rate = review.Rate,
+          Commentary = review.Commentary,
+          CreatedAt = review.CreatedAt
+        })
+        .ToList(),
       Images = p.Images
     };
   }

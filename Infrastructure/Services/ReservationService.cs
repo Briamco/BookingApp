@@ -36,17 +36,45 @@ public class ReservationService
   public async Task<IEnumerable<ReservationResponse>> GetReservationsByGuestIdAsync(Guid guestId)
   {
     var reservations = await _reservationRepo.GetByGuestIdAsync(guestId);
+    var propertyTitles = new Dictionary<int, string>();
 
-    return reservations.Select(reservation => new ReservationResponse
+    var responses = new List<ReservationResponse>();
+
+    foreach (var reservation in reservations)
     {
-      Id = reservation.Id,
-      PropertyId = reservation.PropertyId,
-      GuestId = reservation.GuestId,
-      StartDate = reservation.StartDate,
-      EndDate = reservation.EndDate,
-      Status = reservation.Status,
-      CreatedAt = reservation.CreatedAt
-    });
+      if (!propertyTitles.TryGetValue(reservation.PropertyId, out var propertyTitle))
+      {
+        var property = await _propertyRepository.GetByIdAsync(reservation.PropertyId)
+          ?? throw new Exception("Property not found.");
+
+        propertyTitle = property.Title;
+        propertyTitles[reservation.PropertyId] = propertyTitle;
+      }
+
+      responses.Add(new ReservationResponse
+      {
+        Id = reservation.Id,
+        PropertyId = reservation.PropertyId,
+        PropertyTitle = propertyTitle,
+        GuestId = reservation.GuestId,
+        StartDate = reservation.StartDate,
+        EndDate = reservation.EndDate,
+        Status = reservation.Status,
+        CreatedAt = reservation.CreatedAt,
+        Review = reservation.Review is null ? null : new ReviewResponse
+        {
+          Id = reservation.Review.Id,
+          ReservationId = reservation.Review.ReservationId,
+          PropertyId = reservation.PropertyId,
+          GuestId = reservation.Review.GuestId,
+          Rate = reservation.Review.Rate,
+          Commentary = reservation.Review.Commentary,
+          CreatedAt = reservation.Review.CreatedAt
+        }
+      });
+    }
+
+    return responses;
   }
 
   public async Task CancelReservationAsync(int reservationId, Guid currentUser)
