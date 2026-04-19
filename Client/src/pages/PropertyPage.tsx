@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from "react-router";
 import { useProperty } from "../hooks/useProperty";
 import { useEffect, useState } from "react";
 import type { DateRange, PropertyDatail, PublicUser } from "../types";
-import { AirVent, BookMarked, Car, CookingPot, Home, Star, Tv2, Wifi } from "lucide-react";
+import { AirVent, BookMarked, Car, CookingPot, Home, PhoneCall, Star, Tv2, Wifi } from "lucide-react";
 import CalenderRange from "../components/CalenderRange";
 import PropertyMap from "../components/PropertyMap";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
@@ -130,7 +130,7 @@ function PropertyPage() {
           className="object-cover w-full h-102 lg:h-130"
         />
         <div className="grid grid-cols-2 gap-2">
-          {property.images.slice(1).map((image) => (
+          {property.images.slice(1, 5).map((image) => (
             <img
               key={image.id}
               src={image.url}
@@ -145,14 +145,8 @@ function PropertyPage() {
           <header>
             <h2 className="text-2xl font-semibold">{property.city}, {property.state}, {property.country}</h2>
             <p>{property.capacity} guests</p>
-            <p className="text-base-content/70">
-              Host: {hostInfo ? `${hostInfo.firstName} ${hostInfo.lastName}` : "Unavailable"}
-            </p>
-            <p className="text-base-content/70">
-              Phone: {hostInfo?.phone || "Unavailable"}
-            </p>
           </header>
-          <div className="stats bg-base-100 shadow w-full mb-10">
+          <div className="stats bg-base-100 shadow w-full mb-5">
             <div className="stat">
               <div className="stat-figure text-warning">
                 <Star className="w-8 h-8" />
@@ -168,12 +162,20 @@ function PropertyPage() {
               <div className="stat-value">{property.reviews.length}</div>
             </div>
           </div>
-          <div className="border-y border-primary/20 py-14">
+          <div className="mb-10">
+            <p className="text-base-content/90 text-xl font-semibold flex items-center gap-2">
+              Hosted by {hostInfo ? `${hostInfo.firstName} ${hostInfo.lastName}` : "Unavailable"}
+            </p>
+            <p className="text-base-content/70 flex items-center gap-2">
+              <PhoneCall className="w-5 h-5" /> {hostInfo?.phone || "Unavailable"}
+            </p>
+          </div>
+          <div className="border-y border-primary/20 py-10">
             <p className="text-lg">{property.description}</p>
           </div>
           <div className="border-b border-primary/20 pb-14">
-            <h3 className="text-xl font-semibold mb-4">Amenities</h3>
-            <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4">What this place offers</h3>
+            <div className="space-y-4 grid grid-cols-2">
               <p className="flex gap-2"><Wifi /> Wi-Fi</p>
               <p className="flex gap-2"><AirVent /> Air Conditioning</p>
               <p className="flex gap-2"><Tv2 /> Tv</p>
@@ -227,7 +229,7 @@ function PropertyPage() {
           <p className="text-base-content/70">This property does not have reviews yet.</p>
         ) : (
           <div className="grid gap-4">
-            {property.reviews.map((review) => (
+            {property.reviews.slice(0, 7).map((review) => (
               <article key={review.id} className="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2 font-semibold">
@@ -247,7 +249,7 @@ function PropertyPage() {
       <section>
         <div className="border-b border-primary/20 pb-14 space-y-4">
           <div>
-            <h3 className="text-2xl font-semibold">Where do you go</h3>
+            <h3 className="text-2xl font-semibold">Where you'll be</h3>
             <p>{property.city}, {property.state}, {property.country}</p>
           </div>
           <div className="h-125">
