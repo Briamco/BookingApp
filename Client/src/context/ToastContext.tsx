@@ -28,7 +28,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="toast toast-top toast-end z-100">
+      <div className="toast toast-top toast-center z-100">
         {toasts.map((toast) => {
           const alertClasses = {
             success: "alert-success",
