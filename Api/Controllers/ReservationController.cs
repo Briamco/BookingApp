@@ -13,6 +13,16 @@ public class ReservationController(ReservationService service, IUserService user
   private readonly ReservationService _service = service;
   private readonly IUserService _userService = userService;
 
+  [HttpGet("me")]
+  [Authorize]
+  public async Task<IActionResult> GetMyReservations()
+  {
+    var currentUser = _userService.GetUserId();
+    var reservations = await _service.GetReservationsByGuestIdAsync(currentUser);
+
+    return Ok(reservations);
+  }
+
   [HttpPut("{id}")]
   [Authorize(Roles = "Guest")]
   public async Task<IActionResult> UpdateReservation(int id, [FromBody] CreateReservationRequest request)

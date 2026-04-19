@@ -17,6 +17,14 @@ public class ReservationRepository : IReservationRepository
     return await _context.Reservations.FirstOrDefaultAsync(r => r.Id == id);
   }
 
+  public async Task<IEnumerable<Reservation>> GetByGuestIdAsync(Guid guestId)
+  {
+    return await _context.Reservations
+      .Where(r => r.GuestId == guestId)
+      .OrderByDescending(r => r.CreatedAt)
+      .ToListAsync();
+  }
+
   public async Task<bool> HasOverlappingAsync(int propertyId, DateOnly startDate, DateOnly endDate)
   {
     return await _context.Reservations.AnyAsync(r =>

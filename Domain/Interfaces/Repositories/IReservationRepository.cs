@@ -5,6 +5,7 @@ namespace BookingApp.Domain.Interface;
 public interface IReservationRepository
 {
   Task<Reservation?> GetByIdAsync(int id);
+  Task<IEnumerable<Reservation>> GetByGuestIdAsync(Guid guestId);
   Task<bool> HasOverlappingAsync(int propertyId, DateOnly startDate, DateOnly endDate);
   Task<IEnumerable<Reservation>> GetReservationsToCompleteAsync(DateOnly currentDate);
   Task AddAsync(Reservation reservation);

@@ -1,4 +1,5 @@
 using BookingApp.Application.DTOs;
+using BookingApp.Application.DTOs.Reservation;
 using BookingApp.Application.Intefaces.Services;
 using BookingApp.Infrastructure.Data;
 using BookingApp.Domain.Entities;
@@ -31,6 +32,22 @@ public class ReservationService
 
   public async Task<Reservation?> GetReservationByIdAsync(int id)
     => await _reservationRepo.GetByIdAsync(id);
+
+  public async Task<IEnumerable<ReservationResponse>> GetReservationsByGuestIdAsync(Guid guestId)
+  {
+    var reservations = await _reservationRepo.GetByGuestIdAsync(guestId);
+
+    return reservations.Select(reservation => new ReservationResponse
+    {
+      Id = reservation.Id,
+      PropertyId = reservation.PropertyId,
+      GuestId = reservation.GuestId,
+      StartDate = reservation.StartDate,
+      EndDate = reservation.EndDate,
+      Status = reservation.Status,
+      CreatedAt = reservation.CreatedAt
+    });
+  }
 
   public async Task CancelReservationAsync(int reservationId, Guid currentUser)
   {
