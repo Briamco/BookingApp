@@ -1,5 +1,6 @@
 import CalenderRange from "../CalenderRange";
 import type { DateRange } from "../../types";
+import { useToast } from "../../context/ToastContext";
 
 interface ReservationCalendarDialogProps {
   isOpen: boolean;
@@ -28,12 +29,38 @@ function ReservationCalendarDialog({
   disabledRanges,
   onSave
 }: ReservationCalendarDialogProps) {
+  const { addToast } = useToast();
+
+  const handleAttemptClose = () => {
+    if (!selectedDates) {
+      addToast("error", "Debe seleccionar un rango de fechas");
+      return;
+    }
+
+    onClose();
+  };
+
+  const handlePrimaryAction = () => {
+    if (!selectedDates) {
+      addToast("error", "Debe seleccionar un rango de fechas");
+      return;
+    }
+
+    if (onSave) {
+      onSave();
+      onClose();
+      return;
+    }
+
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4"
-      onClick={onClose}
+      onClick={handleAttemptClose}
     >
       <div
         className="w-full max-w-3xl rounded-3xl bg-base-100 border border-base-300 shadow-2xl p-5 md:p-6"
@@ -68,10 +95,7 @@ function ReservationCalendarDialog({
           <button
             type="button"
             className="btn btn-primary btn-sm"
-            onClick={onSave ? () => {
-              onSave();
-              onClose();
-            } : onClose}
+            onClick={handlePrimaryAction}
           >
             {onSave ? "Save" : "Close"}
           </button>

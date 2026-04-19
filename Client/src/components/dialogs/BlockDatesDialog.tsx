@@ -37,22 +37,22 @@ function BlockDatesDialog({ isOpen, property, onClose, onSave }: BlockDatesDialo
 
   const formattedDates = selectedDates
     ? {
-        start: new Date(selectedDates.startDate).toLocaleDateString("es-DO"),
-        end: new Date(selectedDates.endDate).toLocaleDateString("es-DO"),
-      }
+      start: new Date(selectedDates.startDate).toLocaleDateString("es-DO"),
+      end: new Date(selectedDates.endDate).toLocaleDateString("es-DO"),
+    }
     : {
-        start: "--/--/----",
-        end: "--/--/----",
-      };
+      start: "--/--/----",
+      end: "--/--/----",
+    };
 
   const nights = selectedDates
     ? Math.max(
-        1,
-        Math.ceil(
-          (new Date(selectedDates.endDate).getTime() - new Date(selectedDates.startDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        ),
-      )
+      1,
+      Math.ceil(
+        (new Date(selectedDates.endDate).getTime() - new Date(selectedDates.startDate).getTime()) /
+        (1000 * 60 * 60 * 24),
+      ),
+    )
     : 0;
 
   const handleSave = async () => {
