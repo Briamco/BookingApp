@@ -50,7 +50,7 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
               <img
                 src={property.images[currentIndex].url}
                 alt={`${property.title}-${currentIndex}`}
-                className="w-full max-h-72 object-cover object-bottom"
+                className="w-full max-h-72 object-cover"
               />
             </figure>
             <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
