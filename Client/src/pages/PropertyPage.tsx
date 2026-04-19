@@ -19,14 +19,71 @@ function PropertyPage() {
 
   const [property, setProperty] = useState<PropertyDatail | null>(null);
   const [selectedDates, setSelectedDates] = useState<DateRange | null>(null);
+  const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
 
   const activeReservationRanges = property?.reservations.filter(
     (reservation) => reservation.status !== "Canceled" && reservation.status !== "Cancelled",
   ) ?? [];
 
+  const bookingBlockedRanges = [...activeReservationRanges, ...((property?.blockedDates) ?? [])];
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const isRangeAvailable = (startDate: Date, endDate: Date) => {
+    const startKey = formatDate(startDate);
+    const endKey = formatDate(endDate);
+
+    return !bookingBlockedRanges.some(({ startDate: blockedStart, endDate: blockedEnd }) => {
+      const blockedStartKey = formatDate(new Date(blockedStart));
+      const blockedEndKey = formatDate(new Date(blockedEnd));
+
+      return startKey <= blockedEndKey && endKey >= blockedStartKey;
+    });
+  };
+
+  const getNearestAvailableRange = () => {
+    const candidateStart = new Date();
+    candidateStart.setHours(0, 0, 0, 0);
+    candidateStart.setDate(candidateStart.getDate() + 2);
+
+    for (let offset = 0; offset < 365; offset += 1) {
+      const startDate = new Date(candidateStart);
+      startDate.setDate(candidateStart.getDate() + offset);
+
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 2);
+
+      if (isRangeAvailable(startDate, endDate)) {
+        return { startDate, endDate };
+      }
+    }
+
+    return null;
+  };
+
   useEffect(() => {
-    setSelectedDates(startDate && endDate ? { startDate: new Date(startDate), endDate: new Date(endDate) } : null);
-  }, [startDate, endDate, guestsParam])
+    setSelectedDates(null);
+    setHasInitializedSelection(false);
+  }, [id])
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      setSelectedDates({ startDate: new Date(startDate), endDate: new Date(endDate) });
+      setHasInitializedSelection(true);
+      return;
+    }
+
+    if (property && !hasInitializedSelection) {
+      setSelectedDates(getNearestAvailableRange());
+      setHasInitializedSelection(true);
+    }
+  }, [startDate, endDate, guestsParam, property, hasInitializedSelection])
 
   useEffect(() => {
     const fetchProperty = async () => {
