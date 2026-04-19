@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { DateRange, PropertyDatail } from "../types"
 import { useNavigate } from "react-router";
 import ReservationCalendarDialog from "./dialogs/ReservationCalendarDialog";
+import { useAuth } from "../context/AuthContext";
 
 interface ReservationCardProps {
   property: PropertyDatail
@@ -13,6 +14,7 @@ interface ReservationCardProps {
 
 function ReservationCard({ property, selectedDates, onDateChange, startGuests }: ReservationCardProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [guests, setGuests] = useState(startGuests || 1);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -22,6 +24,7 @@ function ReservationCard({ property, selectedDates, onDateChange, startGuests }:
     ),
     [property.reservations],
   );
+  const isHostProperty = Boolean(user && user.id.toLowerCase() === property.hostId.toLowerCase());
 
   const closeCalendarModal = () => setIsCalendarOpen(false);
 
@@ -50,7 +53,7 @@ function ReservationCard({ property, selectedDates, onDateChange, startGuests }:
     : 0;
 
   const handleReserve = () => {
-    if (!selectedDates) return;
+    if (!selectedDates || isHostProperty) return;
 
     navigate(`/checkout?propertyId=${property.id}&startDate=${new Date(selectedDates.startDate).toISOString()}&endDate=${new Date(selectedDates.endDate).toISOString()}&guests=${guests}`);
   }
@@ -126,10 +129,10 @@ function ReservationCard({ property, selectedDates, onDateChange, startGuests }:
         <div>
           <button
             className="btn btn-primary btn-block btn-xl rounded-full"
-            disabled={!selectedDates}
+            disabled={!selectedDates || isHostProperty}
             onClick={handleReserve}
           >
-            Reserve
+            {isHostProperty ? "Host cannot reserve this property" : "Reserve"}
           </button>
         </div>
       </div>

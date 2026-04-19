@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse, RegisterRequest, User } from "../types";
+import type { LoginRequest, LoginResponse, PublicUser, RegisterRequest, User } from "../types";
 import { api } from "./apiService";
 
 export const authService = {
@@ -14,5 +14,8 @@ export const authService = {
   },
 
   me: async () =>
-    await api.get<User | undefined>(`/auth/me`, { auth: 'required' })
+    await api.get<User | undefined>(`/auth/me`, { auth: 'required' }),
+
+  getPublicById: async (id: string) =>
+    await api.get<PublicUser>(`/auth/${id}/public`, { auth: 'optional' })
 }

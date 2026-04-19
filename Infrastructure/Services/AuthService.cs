@@ -129,4 +129,18 @@ public class AuthService
       IsConfirmed = user.IsConfirmed
     };
   }
+
+  public async Task<PublicUserResponse> GetPublicUserInfoAsync(Guid userId)
+  {
+    var user = await _userRepository.GetByIdAsync(userId)
+      ?? throw new Exception("User not found.");
+
+    return new PublicUserResponse
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Phone = user.Phone
+    };
+  }
 }

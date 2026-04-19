@@ -1,12 +1,13 @@
 import { useParams, useSearchParams } from "react-router";
 import { useProperty } from "../hooks/useProperty";
 import { useEffect, useState } from "react";
-import type { DateRange, PropertyDatail } from "../types";
+import type { DateRange, PropertyDatail, PublicUser } from "../types";
 import { AirVent, BookMarked, Car, CookingPot, Home, Star, Tv2, Wifi } from "lucide-react";
 import CalenderRange from "../components/CalenderRange";
 import PropertyMap from "../components/PropertyMap";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import ReservationCard from "../components/ReservationCard";
+import { authService } from "../services/AuthService";
 
 function PropertyPage() {
   const [searchParams] = useSearchParams();
@@ -20,6 +21,7 @@ function PropertyPage() {
   const [property, setProperty] = useState<PropertyDatail | null>(null);
   const [selectedDates, setSelectedDates] = useState<DateRange | null>(null);
   const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
+  const [hostInfo, setHostInfo] = useState<PublicUser | null>(null);
 
   const activeReservationRanges = property?.reservations.filter(
     (reservation) => reservation.status !== "Canceled" && reservation.status !== "Cancelled",
@@ -96,6 +98,24 @@ function PropertyPage() {
     fetchProperty();
   }, [id])
 
+  useEffect(() => {
+    const fetchHostInfo = async () => {
+      if (!property?.hostId) {
+        setHostInfo(null);
+        return;
+      }
+
+      try {
+        const response = await authService.getPublicById(property.hostId);
+        setHostInfo(response);
+      } catch {
+        setHostInfo(null);
+      }
+    };
+
+    fetchHostInfo();
+  }, [property?.hostId])
+
   if (!property) {
     return <div>Loading...</div>;
   }
@@ -125,6 +145,12 @@ function PropertyPage() {
           <header>
             <h2 className="text-2xl font-semibold">{property.city}, {property.state}, {property.country}</h2>
             <p>{property.capacity} guests</p>
+            <p className="text-base-content/70">
+              Host: {hostInfo ? `${hostInfo.firstName} ${hostInfo.lastName}` : "Unavailable"}
+            </p>
+            <p className="text-base-content/70">
+              Phone: {hostInfo?.phone || "Unavailable"}
+            </p>
           </header>
           <div className="stats bg-base-100 shadow w-full mb-10">
             <div className="stat">

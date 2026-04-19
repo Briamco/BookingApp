@@ -3,6 +3,7 @@ import { useProperty } from "../hooks/useProperty";
 import type { DateRange, PropertyDatail } from "../types";
 import { useEffect, useMemo, useState } from "react";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { ArrowLeft, Star } from "lucide-react";
 import ReservationCalendarDialog from "../components/dialogs/ReservationCalendarDialog";
 import GuestCountDialog from "../components/dialogs/GuestCountDialog";
@@ -18,6 +19,7 @@ function CheckoutPage() {
 
   const { getPropertyById, reservateProperty } = useProperty();
   const { addToast } = useToast();
+  const { user } = useAuth();
 
   const [property, setProperty] = useState<PropertyDatail | null>(null);
   const [selectedDates, setSelectedDates] = useState<DateRange | null>(null);
@@ -30,6 +32,7 @@ function CheckoutPage() {
 
   const closeCalendarModal = () => setIsCalendarOpen(false);
   const closeGuestModal = () => setIsGuestDialogOpen(false);
+  const isHostProperty = Boolean(property && user && property.hostId.toLowerCase() === user.id.toLowerCase());
 
 
   useEffect(() => {
@@ -86,6 +89,11 @@ function CheckoutPage() {
   const handleConfirmReserve = () => {
     if (!property || !selectedDates) {
       addToast("error", "Failed to confirm reservation. Please try again.");
+      return;
+    }
+
+    if (isHostProperty) {
+      addToast("error", "Hosts cannot reserve their own property.");
       return;
     }
 
@@ -181,9 +189,10 @@ function CheckoutPage() {
             <div>
               <button
                 className="btn btn-xl btn-primary btn-block mt-6"
+                disabled={isHostProperty || !selectedDates}
                 onClick={handleConfirmReserve}
               >
-                Confirm Reservation
+                {isHostProperty ? "Host cannot reserve this property" : "Confirm Reservation"}
               </button>
             </div>
           </div>

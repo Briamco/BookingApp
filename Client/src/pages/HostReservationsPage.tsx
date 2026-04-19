@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Star } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useProperty } from "../hooks/useProperty";
-import type { PropertyDatail, Review } from "../types";
+import type { PropertyDatail, PublicUser, Review } from "../types";
+import { authService } from "../services/AuthService";
 
 function HostReservationsPage() {
   const { user } = useAuth();
   const { properties, getPropertyById } = useProperty();
   const [hostProperties, setHostProperties] = useState<PropertyDatail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [guestDirectory, setGuestDirectory] = useState<Record<string, PublicUser>>({});
 
   const userProperties = useMemo(() => {
     if (!user) return [];
@@ -53,6 +55,49 @@ function HostReservationsPage() {
       isActive = false;
     };
   }, [getPropertyById, user, userProperties]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const fetchGuestDirectory = async () => {
+      const guestIds = [...new Set(hostProperties.flatMap((property) => property.reservations.map((reservation) => reservation.guestId)))];
+
+      if (guestIds.length === 0) {
+        if (isActive) {
+          setGuestDirectory({});
+        }
+        return;
+      }
+
+      const responses = await Promise.all(
+        guestIds.map(async (guestId) => {
+          try {
+            const guest = await authService.getPublicById(guestId);
+            return [guestId, guest] as const;
+          } catch {
+            return [guestId, null] as const;
+          }
+        }),
+      );
+
+      if (!isActive) return;
+
+      const nextDirectory: Record<string, PublicUser> = {};
+      responses.forEach(([guestId, guest]) => {
+        if (guest) {
+          nextDirectory[guestId] = guest;
+        }
+      });
+
+      setGuestDirectory(nextDirectory);
+    };
+
+    fetchGuestDirectory();
+
+    return () => {
+      isActive = false;
+    };
+  }, [hostProperties]);
 
   const totalReservations = hostProperties.reduce((total, property) => total + property.reservations.length, 0);
 
@@ -104,6 +149,7 @@ function HostReservationsPage() {
                   <div className="divide-y divide-base-300">
                     {property.reservations.map((reservation) => {
                       const reservationReview = reservation.review ?? reviewByReservation.get(reservation.id) ?? null;
+                      const guest = guestDirectory[reservation.guestId];
 
                       return (
                         <div key={reservation.id} className="grid gap-4 p-5 lg:grid-cols-[1.2fr_0.8fr_1fr] lg:items-start">
@@ -115,7 +161,9 @@ function HostReservationsPage() {
                             <p className="text-base font-medium">
                               {new Date(reservation.startDate).toDateString()} - {new Date(reservation.endDate).toDateString()}
                             </p>
-                            <p className="text-sm text-base-content/60">Guest: {reservation.guestId}</p>
+                            <p className="text-sm text-base-content/60">
+                              Guest: {guest ? `${guest.firstName} ${guest.lastName}` : reservation.guestId}
+                            </p>
                           </div>
 
                           <div>

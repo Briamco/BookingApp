@@ -77,4 +77,19 @@ public class AuthController(AuthService service, IUserService userService) : Con
       return BadRequest(new { error = ex.Message });
     }
   }
+
+  [HttpGet("{id:guid}/public")]
+  [AllowAnonymous]
+  public async Task<IActionResult> GetPublicUserById(Guid id)
+  {
+    try
+    {
+      var userInfo = await _service.GetPublicUserInfoAsync(id);
+      return Ok(userInfo);
+    }
+    catch (Exception ex)
+    {
+      return NotFound(new { error = ex.Message });
+    }
+  }
 }
