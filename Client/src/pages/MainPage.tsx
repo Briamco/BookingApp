@@ -1,4 +1,5 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps"
+import { StarIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import PropertyCard from "../components/PropertyCard"
@@ -31,36 +32,68 @@ function MainPage() {
   const [searchParams] = useSearchParams();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
+  const location = searchParams.get("location");
+  const guests = searchParams.get("guests") ?? searchParams.get("minCapcity");
+  const hasFilters = Boolean(location || guests || searchParams.get("startDate") || searchParams.get("endDate"));
 
   useEffect(() => {
-    const location = searchParams.get("location") ?? undefined;
-    const guests = searchParams.get("guests") ?? searchParams.get("minCapcity");
-    const minCapacity = guests && !Number.isNaN(Number(guests)) ? Number(guests) : undefined;
+    const locationQuery = searchParams.get("location") ?? undefined;
+    const guestsQuery = searchParams.get("guests") ?? searchParams.get("minCapcity");
+    const minCapacity = guestsQuery && !Number.isNaN(Number(guestsQuery)) ? Number(guestsQuery) : undefined;
     const startDate = parseDate(searchParams.get("startDate"));
     const endDate = parseDate(searchParams.get("endDate"));
 
-    fetchProperties(location, undefined, minCapacity, startDate, endDate);
+    fetchProperties(locationQuery, undefined, minCapacity, startDate, endDate);
   }, [fetchProperties, searchParams]);
 
   return (
-    <main className="mx-auto w-full max-w-600 px-4 py-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(420px,48%)] lg:gap-6">
+    <main className="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] xl:gap-8">
       <section className="min-w-0 space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Found your next destination</h1>
-          <p className="text-base-content/70">{properties.length} stays available</p>
+        <header className="relative overflow-hidden rounded-4xl border border-base-300 bg-linear-to-br from-base-100 via-base-100 to-base-200 p-6 shadow-lg sm:p-8">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-info/15 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 bottom-0 h-36 w-36 rounded-full bg-primary/10 blur-2xl" />
+
+          <div className="relative space-y-4">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wider text-base-content/70">
+              <span className="badge badge-outline border-primary/30 text-primary">Explorer</span>
+              {hasFilters ? <span className="badge badge-outline">Filtered search</span> : <span className="badge badge-outline">All stays</span>}
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Find your next destination</h1>
+              <p className="text-sm text-base-content/70 sm:text-base">
+                {properties.length} stay{properties.length === 1 ? "" : "s"} available
+                {location ? ` in ${location}` : " right now"}.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {location ? <span className="badge badge-secondary badge-outline">Location: {location}</span> : null}
+              {guests ? <span className="badge badge-secondary badge-outline">Guests: {guests}</span> : null}
+            </div>
+          </div>
         </header>
 
-        <ul className="grid gap-6 sm:grid-cols-2">
-          {properties.map(property => (
-            <li key={property.id} className="h-full">
-              <PropertyCard property={property} onClick={() => navigate(`/property/${property.id}`)} />
-            </li>
-          ))}
-        </ul>
+        {properties.length === 0 ? (
+          <div className="grid min-h-64 place-items-center rounded-4xl border border-dashed border-base-300 bg-base-100/70 p-8 text-center shadow-sm">
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">No properties found</h2>
+              <p className="text-sm text-base-content/70">Try adjusting your filters to discover more stays.</p>
+            </div>
+          </div>
+        ) : (
+          <ul className="grid gap-6 sm:grid-cols-2">
+            {properties.map(property => (
+              <li key={property.id} className="h-full">
+                <PropertyCard property={property} onClick={() => navigate(`/property/${property.id}`)} />
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
-      <section className="mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-[calc(100vh-8rem)]">
-        <div className="h-130 overflow-hidden rounded-4xl border border-base-300 bg-base-100 shadow-2xl lg:h-full">
+      <section className="lg:sticky lg:top-6 lg:h-[calc(100vh-8.5rem)]">
+        <div className="h-112 overflow-hidden rounded-4xl border border-base-300 bg-base-100 shadow-2xl sm:h-136 lg:h-full">
           <PropertyMap>
             {properties.map((property) => {
               const isSelected = selectedPropertyId === property.id;
@@ -78,36 +111,54 @@ function MainPage() {
                   <div className="flex flex-col items-center gap-2">
                     {isSelected && (
                       <div
-                        className="w-64 rounded-2xl border border-base-300 bg-base-100 p-3 text-left shadow-2xl"
+                        className="animate-map-popup-in w-72 cursor-pointer overflow-hidden rounded-3xl border border-base-300 bg-base-100 text-left shadow-2xl"
                         onClick={(event) => {
                           event.stopPropagation();
                           navigate(`/property/${property.id}`);
                         }}
                       >
-                        {mainImage ? (
-                          <img
-                            src={mainImage}
-                            alt={property.title}
-                            className="mb-2 h-28 w-full rounded-xl object-cover"
-                          />
-                        ) : (
-                          <div className="mb-2 grid h-28 w-full place-items-center rounded-xl bg-base-200 text-xs text-base-content/60">
-                            No image available
+                        <div className="relative h-32 w-full overflow-hidden bg-base-200">
+                          {mainImage ? (
+                            <img
+                              src={mainImage}
+                              alt={property.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="grid h-full w-full place-items-center text-xs text-base-content/60">
+                              No image available
+                            </div>
+                          )}
+
+                          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-neutral/55 via-transparent to-transparent" />
+
+                          <div className="absolute right-3 top-3 rounded-full border border-base-100/40 bg-base-100/90 px-2 py-1 text-xs font-semibold text-base-content shadow-sm backdrop-blur">
+                            <span className="inline-flex items-center gap-1.5">
+                              <StarIcon className="h-3.5 w-3.5 text-warning" />
+                              {property.averageRating.toFixed(1)}
+                            </span>
                           </div>
-                        )}
-                        <p className="text-sm font-semibold leading-snug">{property.title}</p>
-                        <p className="mt-1 text-xs text-base-content/70 leading-snug">{shortDescription}</p>
-                        <p className="mt-2 text-xs font-medium text-primary">From ${property.nightPrice} USD / night</p>
+                        </div>
+
+                        <div className="space-y-2 p-3">
+                          <p className="line-clamp-1 text-sm font-semibold leading-snug">{property.title}</p>
+                          <p className="line-clamp-2 text-xs leading-snug text-base-content/70">{shortDescription}</p>
+
+                          <div className="flex items-center justify-between border-t border-base-300 pt-2">
+                            <p className="text-xs font-medium text-primary">From ${property.nightPrice} USD / night</p>
+                            <span className="text-[11px] font-medium text-base-content/60">View details</span>
+                          </div>
+                        </div>
                       </div>
                     )}
 
                     <div
                       className={`
-                      font-bold py-1 px-3 rounded-full shadow-lg text-sm whitespace-nowrap text-center 
-                      border transition-all duration-300 cursor-pointer
+                      rounded-full border px-3 py-1 text-center text-sm font-bold whitespace-nowrap shadow-lg
+                      transition-all duration-300 cursor-pointer
                       ${isSelected
-                          ? 'bg-primary text-base-100 border-base-100 scale-110 z-50'
-                          : 'bg-base-100 border-base-300 text-primary hover:scale-105'
+                          ? 'animate-marker-pop z-50 scale-110 border-base-100 bg-primary text-base-100'
+                          : 'border-base-300 bg-base-100/95 text-primary backdrop-blur hover:scale-105'
                         }
                     `}
                     >

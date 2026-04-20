@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { Building2, LayoutGrid } from "lucide-react"
 import CreatePropertyDialog from "../components/dialogs/CreatePropertyDialog"
 import EditPropertyDialog from "../components/dialogs/EditPropertyDialog"
 import PropertyCard from "../components/PropertyCard"
@@ -72,29 +73,55 @@ function MyPropertiesPage() {
   }
 
   return (
-    <main className="space-y-6 max-w-11/12 mx-auto">
-      <header className="flex justify-between items-center">
-        <h1 className="text-5xl font-bold">My Properties</h1>
-        <CreatePropertyDialog onCreate={handleCreateProperty} />
+    <main className="premium-page-shell mx-auto max-w-11/12 space-y-6 pb-8">
+      <header className="rounded-3xl border border-base-300/80 bg-linear-to-br from-base-100 via-base-100 to-base-200/90 p-6 shadow-sm lg:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">My Properties</h1>
+            <p className="text-base-content/70">Manage listings, media, and blocked dates from one premium dashboard.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="rounded-2xl border border-base-300 bg-base-100 px-4 py-2 text-right shadow-sm">
+              <p className="text-xs uppercase tracking-[0.2em] text-base-content/60">Total</p>
+              <p className="text-2xl font-bold text-primary">{userProperties.length}</p>
+            </div>
+            <CreatePropertyDialog onCreate={handleCreateProperty} />
+          </div>
+        </div>
       </header>
+
       {userProperties.length === 0 ? (
-        <p>You have no properties yet. Click "New Property" to create one.</p>
+        <div className="grid min-h-[45vh] place-items-center rounded-3xl border border-base-300/80 bg-base-100/90 p-10 text-center shadow-sm">
+          <div className="space-y-3">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-base-200 text-base-content/60">
+              <Building2 className="h-5 w-5" />
+            </div>
+            <p className="text-lg font-medium">You have no properties yet.</p>
+            <p className="text-sm text-base-content/60">Click "New Property" to publish your first listing.</p>
+          </div>
+        </div>
       ) : (
-        <ul className="grid grid-cols-4 gap-6">
+        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {userProperties.map(property => (
-            <li key={property.id}>
-              <EditPropertyDialog
-                property={property}
-                onEdit={handleEditProperty}
-                onAddImages={handleAddPropertyImages}
-                onReorderImages={handleReorderPropertyImages}
-                onDeleteImages={handleDeletePropertyImages}
-                trigger={<PropertyCard property={property} canBlockDates onBlockDates={handleOpenBlockDatesDialog} />}
-                triggerClassName="block cursor-pointer"
-              />
-            </li>
+            <EditPropertyDialog
+              key={property.id}
+              property={property}
+              onEdit={handleEditProperty}
+              onAddImages={handleAddPropertyImages}
+              onReorderImages={handleReorderPropertyImages}
+              onDeleteImages={handleDeletePropertyImages}
+              trigger={<PropertyCard property={property} canBlockDates onBlockDates={handleOpenBlockDatesDialog} />}
+              triggerClassName="block cursor-pointer rounded-2xl"
+            />
           ))}
         </ul>
+      )}
+
+      {userProperties.length > 0 && (
+        <div className="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3 text-sm text-base-content/70 shadow-sm">
+          <LayoutGrid className="h-4 w-4 text-primary" />
+          Tip: click a property card to edit details, images, or block dates.
+        </div>
       )}
 
       <BlockDatesDialog

@@ -131,71 +131,201 @@ function CheckoutPage() {
     setIsGuestDialogOpen(false);
   };
 
+  const totalPrice = nights > 0 ? property.nightPrice * nights : property.nightPrice;
+
   return (
-    <div className="grid h-screen place-items-center bg-base-200">
-      <div className="flex gap-10">
-        <button
-          className="btn btn-circle bg-base-100"
-          onClick={handleReturnToProperty}
-        >
-          <ArrowLeft />
-        </button>
-        <div className="card card-xl w-110 bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex items-center gap-4 border-b border-base-300 pb-5">
-              <img
-                src={property.images[0].url}
-                alt={`${property.title}-${property.images[0].order}`}
-                className="w-35 aspect-square object-cover rounded-lg"
-              />
-              <div>
-                <h1 className="card-title">{property?.title}</h1>
-                <span className="flex gap-2 text-sm font-semibold"><Star className="text-warning w-5 h-5" /> {property?.averageRating.toFixed(1)} ({property.averageRating})</span>
+    <div className="relative min-h-screen bg-base-200">
+      <div className="pointer-events-none absolute -left-24 top-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-0 top-1/3 h-80 w-80 rounded-full bg-info/10 blur-3xl" />
+
+      <div className="relative mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <button
+            className="btn btn-circle border border-base-300 bg-base-100/90 shadow-lg backdrop-blur"
+            onClick={handleReturnToProperty}
+            aria-label="Back to property"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+
+          <div className="hidden items-center gap-2 rounded-full border border-base-300 bg-base-100/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/60 shadow-sm backdrop-blur sm:flex">
+            Secure checkout
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          <section className="overflow-hidden rounded-4xl border border-base-300/70 bg-linear-to-br from-base-100 via-base-100 to-base-200 shadow-2xl">
+            <div className="p-6 sm:p-8 lg:p-10">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-base-content/50">
+                <span className="badge badge-outline border-primary/30 text-primary">Checkout</span>
+                <span className="badge badge-outline">Review details</span>
+                <span className="badge badge-outline">Confirm booking</span>
               </div>
-            </div>
-            <div className="border-b border-base-300 pb-5">
-              <h2 className="font-semibold">Dates</h2>
-              <div className="flex justify-between">
-                <span>{selectedDates?.startDate.toDateString()} - {selectedDates?.endDate.toDateString()}</span>
-                <button
-                  className="btn btn-xs"
-                  onClick={() => setIsCalendarOpen(true)}
-                >
-                  Change
-                </button>
-              </div>
-            </div>
-            <div className="border-b border-base-300 pb-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold">Guests</h2>
-                  <span>{guests} {guests === 1 ? "guest" : "guests"}</span>
+
+              <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] xl:items-end">
+                <div className="space-y-4">
+                  <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">{property.title}</h1>
+                  <p className="max-w-xl text-base text-base-content/70 sm:text-lg">
+                    {property.city}, {property.state}, {property.country}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-base-content/70">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100/80 px-4 py-2 shadow-sm backdrop-blur">
+                      <Star className="h-4 w-4 text-warning" />
+                      {property.averageRating.toFixed(1)} rating
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100/80 px-4 py-2 shadow-sm backdrop-blur">
+                      {nights} {nights === 1 ? "night" : "nights"}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100/80 px-4 py-2 shadow-sm backdrop-blur">
+                      {guests} {guests === 1 ? "guest" : "guests"}
+                    </span>
+                  </div>
                 </div>
-                <button
-                  className="btn btn-xs"
-                  onClick={openGuestModal}
-                >
-                  Change
-                </button>
+
+                <div className="overflow-hidden rounded-3xl border-base-300 bg-base-300 shadow-lg space-y-2 border-10">
+                  <img
+                    src={property.images[0].url}
+                    alt={`${property.title}-${property.images[0].order}`}
+                    className="h-56 w-full object-cover sm:h-64"
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    {property.images.slice(1, 4).map((image) => (
+                      <img
+                        key={image.id}
+                        src={image.url}
+                        alt={`${property.title}-${image.order}`}
+                        className="h-24 w-full object-cover sm:h-28"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-3xl border border-base-300 bg-base-100/85 p-4 shadow-sm backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-base-content/50">Property</p>
+                  <p className="mt-2 text-lg font-semibold">{property.city}</p>
+                  <p className="text-sm text-base-content/60">{property.country}</p>
+                </div>
+                <div className="rounded-3xl border border-base-300 bg-base-100/85 p-4 shadow-sm backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-base-content/50">Dates</p>
+                  <p className="mt-2 text-lg font-semibold">{formattedDates.start}</p>
+                  <p className="text-sm text-base-content/60">to {formattedDates.end}</p>
+                </div>
+                <div className="rounded-3xl border border-base-300 bg-base-100/85 p-4 shadow-sm backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-base-content/50">Guests</p>
+                  <p className="mt-2 text-lg font-semibold">{guests}</p>
+                  <p className="text-sm text-base-content/60">travellers</p>
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-4xl border border-base-300/70 bg-base-100/90 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold">Trip details</h2>
+                    <p className="text-sm text-base-content/60">Edit the booking details before confirming.</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-3xl border border-base-300 bg-base-200/50 p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">Dates</p>
+                      <button
+                        className="btn btn-sm rounded-full border border-base-300 bg-base-100 shadow-sm"
+                        onClick={() => setIsCalendarOpen(true)}
+                      >
+                        Change dates
+                      </button>
+                    </div>
+                    <p className="mt-2 text-lg font-medium">
+                      {selectedDates?.startDate.toDateString()} - {selectedDates?.endDate.toDateString()}
+                    </p>
+                    <p className="mt-1 text-sm text-base-content/60">
+                      {formattedDates.start} - {formattedDates.end}
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl border border-base-300 bg-base-200/50 p-4 sm:p-5">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">Guests</p>
+                        <button
+                          className="btn btn-sm rounded-full border border-base-300 bg-base-100 shadow-sm"
+                          onClick={openGuestModal}
+                        >
+                          Change guests
+                        </button>
+                      </div>
+                      <p className="mt-2 text-lg font-medium">{guests} {guests === 1 ? "guest" : "guests"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-3xl border border-base-300 bg-base-200/50 p-4 sm:p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-base-content/50">Price details</h3>
+                  <div className="mt-3 space-y-3 text-sm sm:text-base">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-base-content/70">{nights} {nights === 1 ? "night" : "nights"} x ${property.nightPrice} USD</span>
+                      <span className="font-semibold">${property.nightPrice * nights} USD</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 border-t border-base-300 pt-3">
+                      <span className="text-base-content/70">Service total</span>
+                      <span className="font-semibold text-primary">Included</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="pb-5">
-              <h2 className="font-semibold">Price details</h2>
-              <div className="flex justify-between">
-                <span>{nights} {nights === 1 ? "night" : "nights"} x ${property?.nightPrice} USD</span>
-                <span className="font-semibold">${property.nightPrice * nights} USD</span>
+          </section>
+
+          <aside className="h-fit self-start lg:sticky lg:top-6">
+            <div className="rounded-4xl border border-base-300/70 bg-base-100/90 p-6 shadow-2xl backdrop-blur-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/50">Booking summary</p>
+              <div className="mt-4 flex items-end justify-between gap-4 border-b border-base-300 pb-4">
+                <div>
+                  <p className="text-sm text-base-content/60">Total</p>
+                  <h2 className="mt-1 text-3xl font-semibold text-primary">${totalPrice} USD</h2>
+                  <p className="text-sm text-base-content/60">for {nights} {nights === 1 ? "night" : "nights"}</p>
+                </div>
+                <div className="rounded-3xl border border-base-300 bg-base-200/60 p-4 text-right shadow-sm">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-base-content/50">Avg</p>
+                  <p className="text-lg font-semibold">${property.nightPrice}</p>
+                  <p className="text-sm text-base-content/60">per night</p>
+                </div>
               </div>
-            </div>
-            <div>
+
+              <div className="mt-4 rounded-3xl border border-base-300 bg-linear-to-br from-primary/10 via-base-100 to-accent/10 p-4">
+                <p className="text-sm font-semibold text-base-content/80">Review before confirming</p>
+                <ul className="mt-3 space-y-2 text-sm text-base-content/65">
+                  <li>Dates: {formattedDates.start} to {formattedDates.end}</li>
+                  <li>Guests: {guests}</li>
+                  <li>Property: {property.title}</li>
+                </ul>
+              </div>
+
               <button
-                className="btn btn-xl btn-primary btn-block mt-6"
+                className="btn btn-primary btn-block btn-xl mt-6 rounded-full shadow-lg shadow-primary/20"
                 disabled={isHostProperty || !selectedDates}
                 onClick={handleConfirmReserve}
               >
                 {isHostProperty ? "Host cannot reserve this property" : "Confirm Reservation"}
               </button>
+
+              <p className="mt-4 text-center text-xs leading-6 text-base-content/55">
+                You can still edit dates and guests before confirming.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                <button className="btn btn-outline btn-block rounded-full" onClick={() => setIsCalendarOpen(true)}>
+                  Edit dates
+                </button>
+                <button className="btn btn-outline btn-block rounded-full" onClick={openGuestModal}>
+                  Edit guests
+                </button>
+              </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
 
