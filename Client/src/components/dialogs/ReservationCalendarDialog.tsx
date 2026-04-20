@@ -59,7 +59,8 @@ function ReservationCalendarDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4"
+      style={{ zIndex: 3000 }}
       onClick={handleAttemptClose}
     >
       <div

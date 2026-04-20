@@ -254,7 +254,7 @@ function PropertyPage() {
           </section>
         </main>
 
-        <aside className="h-fit self-start lg:sticky lg:top-6">
+        <aside className="h-fit self-start lg:sticky lg:top-6 z-10">
           <ReservationCard
             property={property}
             selectedDates={selectedDates}
