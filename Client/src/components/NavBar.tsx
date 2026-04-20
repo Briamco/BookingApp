@@ -152,7 +152,7 @@ function NavBar() {
           className="flex-1 flex justify-center"
         >
           <div className="flex w-full max-w-3xl items-stretch overflow-visible rounded-full border border-base-300 bg-base-100 shadow-lg">
-            <div className="min-w-0 flex-1 px-4 py-2">
+            <div className="min-w-0 flex-1 px-4 pl-8 py-2">
               <p className="text-xs font-semibold">Where</p>
               <input
                 type="text"
