@@ -242,6 +242,33 @@ Luego publica/corre la API con esos estaticos en `wwwroot`.
 - No llegan emails:
   - Revisa `RESEND_API_KEY`, remitente y/o credenciales SMTP.
 
+## Matriz de Cumplimiento de Requisitos (REQUIREMENTS.md)
+
+Estado actualizado al 20-04-2026.
+
+| Requisito | Backend | Frontend | Estado |
+|---|---|---|---|
+| 1. Gestion de usuarios (registro, login, JWT, confirmacion por correo) | Implementado con bloqueo de usuarios no confirmados y expiracion de token de confirmacion | Flujos de registro, login y confirmacion implementados | Cumple |
+| 2. Roles y control de acceso | Endpoints protegidos por roles Host/Guest y autorizacion JWT | Rutas separadas para host y guest con guards dedicados | Cumple |
+| 3. Gestion de propiedades (Host) | Crear, editar y eliminar propiedades con validacion de ownership | Vistas de gestion de propiedades para host | Cumple |
+| 4. Disponibilidad y busqueda | Filtros por ubicacion, fechas, capacidad y precio; exclusiones por reservas confirmadas y bloqueos | Busqueda con filtros y consumo de resultados disponibles | Cumple |
+| 5. Reservas y ciclo de estados | Creacion en Confirmed y acciones de negocio para cancelar/completar con validaciones | Flujos de reserva y cancelacion integrados | Cumple |
+| 6. Restriccion de transiciones invalidas | Reglas de dominio para evitar cambios invalidos de estado | No expone cambios de estado genericos en UI | Cumple |
+| 7. Reseñas | Solo permite reseña para reserva Completed, una reseña por reserva y rating 1-5 | Dialogo de reseña para reservas completadas | Cumple |
+| 8. Promedio de calificacion por propiedad | Calculado en respuestas de propiedad | Mostrado en listados y detalle | Cumple |
+| 9. Notificaciones internas | Persistencia, listado, filtro de no leidas y marcado como leida | Centro de notificaciones y acciones de lectura | Cumple |
+| 10. Notificaciones por correo y push | Generacion automatica por eventos relevantes, push por WebSocket y envio por email desacoplado | Suscripcion en tiempo real y refresco de bandeja | Cumple |
+| 11. Concurrencia en reservas | Lock por propiedad + transaccion + validacion de solapamiento | No aplica logica de concurrencia en cliente | Cumple |
+| 12. Evidencia de concurrencia | Prueba automatizada que garantiza una sola reserva exitosa en solicitudes simultaneas | No aplica | Cumple |
+| 13. Arquitectura Onion y separacion de responsabilidades | Capas separadas (Api, Application, Domain, Infrastructure) con reglas de negocio fuera de controllers | Cliente desacoplado consumiendo API | Cumple |
+| 14. Manejo de errores y validaciones | Validaciones de negocio y respuestas de error controladas | Manejo de errores y feedback en UI | Cumple |
+| 15. Frontend obligatorio (consumo API, login/logout, rutas protegidas, vistas diferenciadas) | API preparada para flujos autenticados y por rol | Login/logout, proteccion de rutas y separacion host/guest implementadas | Cumple |
+
+Validacion tecnica ejecutada:
+
+- Suite de tests backend: 18 pruebas aprobadas.
+- Build frontend: compilacion exitosa con TypeScript + Vite.
+
 ## Estado Actual y Mejoras Sugeridas
 
 Sugerencias para evolucionar el proyecto:
