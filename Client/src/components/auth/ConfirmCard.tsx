@@ -53,10 +53,10 @@ function ConfirmCard() {
       <div className="card-body items-center gap-4 p-8 text-center">
         <div
           className={`flex h-16 w-16 items-center justify-center rounded-full border ${isLoading
-              ? "border-info/30 bg-info/10"
-              : isSuccess
-                ? "border-success/30 bg-success/10"
-                : "border-error/30 bg-error/10"
+            ? "border-info/30 bg-info/10"
+            : isSuccess
+              ? "border-success/30 bg-success/10"
+              : "border-error/30 bg-error/10"
             }`}
           aria-hidden="true"
         >
@@ -88,9 +88,14 @@ function ConfirmCard() {
           </Link>
 
           {!isSuccess && !isLoading ? (
-            <Link to="/auth/register" className="btn btn-ghost w-full">
-              Create a new account
-            </Link>
+            <div className="grid w-full gap-2">
+              <Link to="/auth/resend-confirmation" className="btn btn-secondary w-full">
+                Resend confirmation email
+              </Link>
+              <Link to="/auth/register" className="btn btn-ghost w-full">
+                Create a new account
+              </Link>
+            </div>
           ) : null}
         </div>
       </div>

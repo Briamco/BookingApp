@@ -58,6 +58,21 @@ public class AuthController(AuthService service, IUserService userService) : Con
     }
   }
 
+  [HttpPost("resend-confirmation")]
+  [AllowAnonymous]
+  public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationRequest request)
+  {
+    try
+    {
+      var message = await _service.ResendConfirmationEmailAsync(request.Email);
+      return Ok(new { message });
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(new { error = ex.Message });
+    }
+  }
+
   [HttpGet("me")]
   [Authorize]
   public async Task<IActionResult> GetUserInfo()

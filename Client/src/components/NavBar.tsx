@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Bell, Search, Calendar as CalendarIcon, Plus, Minus } from "lucide-react";
+import { Bell, Search, Calendar as CalendarIcon, Plus, Minus, MapPinHouse } from "lucide-react";
 import LoginButton from "./auth/LoginButton";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
@@ -40,6 +40,7 @@ function NavBar() {
   const [guestDraft, setGuestDraft] = useState(1);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showGuestPopover, setShowGuestPopover] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const guestRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +50,18 @@ function NavBar() {
     const currentUserId = user.id.toLowerCase();
     return properties.some((property) => property.hostId.toLowerCase() === currentUserId);
   })();
+
+  // Body scroll lock
+  useEffect(() => {
+    if (isMobileSearchOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileSearchOpen]);
 
   useEffect(() => {
     setDestination(searchParams.get("location") ?? "");
@@ -103,6 +116,7 @@ function NavBar() {
     });
 
     setShowCalendar(false);
+    setIsMobileSearchOpen(false);
   };
 
   const dateRangeDisplay = selectedDates && selectedDates.startDate && selectedDates.endDate
@@ -139,19 +153,40 @@ function NavBar() {
   }, [showCalendar]);
 
   return (
-    <nav className="bg-base-300 shadow-sm px-4 py-3">
+    <nav className={`bg-base-300 shadow-sm px-4 py-3 sticky top-0 transition-all duration-300 ${isMobileSearchOpen ? 'z-100' : 'z-40'}`}>
       <div className="mx-auto flex w-full items-center justify-between gap-4">
-        {/* Logo */}
-        <div className="shrink-0">
-          <Link to="/" className="btn btn-ghost text-xl">BookingApp</Link>
+        {/* Logo - Hidden on mobile */}
+        <div className="shrink-0 hidden md:block">
+          <Link to="/" className="btn btn-ghost gap-2 text-xl normal-case">
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/15 text-primary">
+              <MapPinHouse className="h-4 w-4" />
+            </span>
+            <span className="font-semibold tracking-tight">Comit</span>
+          </Link>
         </div>
 
-        {/* Search Bar - Centered */}
-        <form
-          onSubmit={handleSearch}
-          className="flex-1 flex justify-center"
-        >
-          <div className="flex w-full max-w-3xl items-stretch overflow-visible rounded-full border border-base-300 bg-base-100 shadow-lg">
+        {/* Search Bar - Full on desktop, button-like on mobile */}
+        <div className="flex-1 flex justify-center">
+          {/* Mobile Search Button (Visible only on small screens) */}
+          <button
+            type="button"
+            onClick={() => setIsMobileSearchOpen(true)}
+            className="md:hidden flex items-center gap-3 w-full bg-base-100 rounded-full py-2 px-4 shadow-md border border-base-300"
+          >
+            <Search className="h-4 w-4 text-primary" />
+            <div className="text-left">
+              <p className="text-xs font-bold">Where to?</p>
+              <p className="text-[10px] text-base-content/60">
+                {destination || "Anywhere"} • {selectedDates ? "Dates selected" : "Any week"} • {guests > 0 ? `${guests} guests` : "Add guests"}
+              </p>
+            </div>
+          </button>
+
+          {/* Desktop Search Bar (Hidden on mobile) */}
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 w-full max-w-3xl items-stretch overflow-visible rounded-full border border-base-300 bg-base-100 shadow-lg"
+          >
             <div className="min-w-0 flex-1 px-4 pl-8 py-2">
               <p className="text-xs font-semibold">Where</p>
               <input
@@ -208,7 +243,7 @@ function NavBar() {
               </button>
 
               {showGuestPopover && (
-                <div className="absolute top-full left-0 mt-2 z-50 w-80 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-2xl">
+                <div className="absolute top-full right-0 mt-2 z-50 w-80 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-2xl">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
                       <h3 className="text-2xl font-semibold">Guests</h3>
@@ -264,8 +299,8 @@ function NavBar() {
             <button type="submit" className="m-2 grid h-11 w-11 place-items-center rounded-full btn btn-primary btn-circle hover:scale-110 transition-transform">
               <Search className="h-4 w-4" />
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
 
         {/* Right Actions */}
         <div className="shrink-0 flex items-center gap-2">
@@ -276,7 +311,7 @@ function NavBar() {
                   Become a host
                 </Link>
               )}
-              <Link to="/my-notifications" className="btn btn-ghost btn-circle">
+              <Link to="/my-notifications" className="btn btn-ghost btn-circle hidden md:flex">
                 <div className="indicator">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && <span className="indicator-item badge badge-error badge-sm animate-bounce">{unreadCount}</span>}
@@ -284,9 +319,103 @@ function NavBar() {
               </Link>
             </>
           )}
-          <LoginButton />
+          <div className="hidden md:block">
+            <LoginButton />
+          </div>
         </div>
       </div>
+
+      {/* Mobile Search Overlay */}
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 z-100 bg-base-200 md:hidden flex flex-col h-dvh">
+          {/* Header */}
+          <div className="p-4 flex items-center justify-between bg-base-100 border-b border-base-300 shrink-0">
+            <button
+              type="button"
+              className="btn btn-circle btn-sm btn-ghost"
+              onClick={() => setIsMobileSearchOpen(false)}
+            >
+              ✕
+            </button>
+            <h2 className="font-bold">Search stays</h2>
+            <div className="w-8" />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
+            <div className="bg-base-100 rounded-2xl p-4 shadow-sm border border-base-300">
+              <p className="text-xs font-bold uppercase mb-2">Where</p>
+              <input
+                type="text"
+                value={destination}
+                onChange={(event) => setDestination(event.target.value)}
+                placeholder="Search destinations"
+                className="w-full bg-base-200 rounded-xl p-3 text-sm outline-none focus:ring-2 ring-primary/20"
+              />
+            </div>
+
+            <div className="bg-base-100 rounded-2xl p-4 shadow-sm border border-base-300">
+              <p className="text-xs font-bold uppercase mb-2">When</p>
+              <div className="overflow-x-auto flex justify-center">
+                <CalenderRange
+                  value={selectedDates}
+                  onChange={setSelectedDates}
+                  months={1}
+                />
+              </div>
+            </div>
+
+            <div className="bg-base-100 rounded-2xl p-4 shadow-sm border border-base-300">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold uppercase">Guests</p>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="btn btn-circle btn-xl btn-outline"
+                    onClick={() => setGuests((c) => Math.max(0, c - 1))}
+                    disabled={guests <= 0}
+                  >
+                    <Minus className="h-5 w-5" />
+                  </button>
+                  <span className="font-bold text-xl w-4 text-center">{guests}</span>
+                  <button
+                    type="button"
+                    className="btn btn-circle btn-xl btn-outline"
+                    onClick={() => setGuests((c) => Math.min(16, c + 1))}
+                  >
+                    <Plus className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer - Fixed at bottom */}
+          <div className="p-4 bg-base-100 border-t border-base-300 flex items-center justify-between shrink-0 safe-bottom">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                setDestination("");
+                setSelectedDates(null);
+                setGuests(0);
+              }}
+            >
+              Clear all
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary px-8"
+              onClick={(e) => {
+                handleSearch(e as any);
+              }}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

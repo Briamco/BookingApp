@@ -34,23 +34,23 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
 
   return (
     <div
-      className={`card h-full w-full overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${onClick ? "cursor-pointer" : ""}`}
+      className={`card h-full w-full overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:shadow-xl ${onClick ? "cursor-pointer md:hover:-translate-y-1" : ""}`}
       onClick={() => {
         if (onClick) onClick(property.id)
       }}
     >
       <div className="carousel group relative w-full">
         {!hasImages ? (
-          <div className="grid h-56 w-full place-items-center bg-base-200">
+          <div className="grid h-48 sm:h-56 w-full place-items-center bg-base-200">
             <span className="text-sm text-base-content/60">No image available</span>
           </div>
         ) : (
           <div className="carousel-item relative w-full">
-            <figure className="flex h-56 w-full items-center justify-center overflow-hidden">
+            <figure className="flex h-48 sm:h-56 w-full items-center justify-center overflow-hidden">
               <img
                 src={property.images[currentIndex].url}
                 alt={`${property.title}-${currentIndex}`}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-500 md:group-hover:scale-105"
               />
             </figure>
 
@@ -102,26 +102,26 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
         )}
       </div>
 
-      <div className="card-body gap-4 p-5">
-        <div className="space-y-1.5">
-          <h2 className="line-clamp-2 text-lg font-semibold leading-snug">{property.title}</h2>
-          <p className="text-sm leading-relaxed text-base-content/70">
-            {property.description.length > 110 ? `${property.description.substring(0, 110)}...` : property.description}
+      <div className="card-body gap-3 md:gap-4 p-4 md:p-5">
+        <div className="space-y-1">
+          <h2 className="line-clamp-1 md:line-clamp-2 text-base md:text-lg font-semibold leading-snug">{property.title}</h2>
+          <p className="line-clamp-2 text-xs md:text-sm leading-relaxed text-base-content/70">
+            {property.description}
           </p>
         </div>
 
         <div className="flex items-center justify-between gap-4 border-t border-base-300 pt-3">
           <div>
-            <p className="text-xs uppercase tracking-wide text-base-content/60">Price per night</p>
-            <p className="text-lg font-bold text-primary">${property.nightPrice} USD</p>
+            <p className="text-[10px] uppercase tracking-wide text-base-content/60">Per night</p>
+            <p className="text-base md:text-lg font-bold text-primary">${property.nightPrice} USD</p>
           </div>
 
           <div className="flex flex-col items-end gap-2">
-            <p className="text-xs font-medium text-base-content/60">Tap card for details</p>
+            <p className="hidden md:block text-xs font-medium text-base-content/60">Tap card for details</p>
             {canBlockDates && (
               <button
                 type="button"
-                className="btn btn-sm btn-outline"
+                className="btn btn-xs md:btn-sm btn-outline"
                 onClick={(event) => {
                   event.stopPropagation()
                   onBlockDates?.(property.id)

@@ -150,7 +150,7 @@ function CalenderRange({ value, onChange, months = 2, disabledRanges = [] }: Cal
         <ArrowRight className="w-6 h-6" slot="next" aria-label="Next" />
         <div className="flex gap-4 flex-row w-full justify-center">
           <calendar-month></calendar-month>
-          {months > 1 && <calendar-month offset={1}></calendar-month>}
+          {months > 1 && <calendar-month offset={1} className="hidden sm:block"></calendar-month>}
         </div>
       </calendar-range>
     </div>

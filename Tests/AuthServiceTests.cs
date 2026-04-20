@@ -255,6 +255,71 @@ public class AuthServiceTests
     userRepository.Verify(r => r.UpdateAsync(user), Times.Once);
   }
 
+  [Fact]
+  public async Task ResendConfirmationEmailAsync_WhenUserDoesNotExist_ShouldThrow()
+  {
+    var (service, userRepository, _, _, _) = BuildAuthService();
+
+    userRepository
+      .Setup(r => r.GetByEmailAsync("missing@test.com"))
+      .ReturnsAsync((User?)null);
+
+    await Assert.ThrowsAsync<Exception>(() => service.ResendConfirmationEmailAsync("missing@test.com"));
+  }
+
+  [Fact]
+  public async Task ResendConfirmationEmailAsync_WhenUserIsAlreadyConfirmed_ShouldThrow()
+  {
+    var (service, userRepository, _, _, _) = BuildAuthService();
+
+    userRepository
+      .Setup(r => r.GetByEmailAsync("user@test.com"))
+      .ReturnsAsync(new User
+      {
+        Email = "user@test.com",
+        IsConfirmed = true
+      });
+
+    await Assert.ThrowsAsync<Exception>(() => service.ResendConfirmationEmailAsync("user@test.com"));
+  }
+
+  [Fact]
+  public async Task ResendConfirmationEmailAsync_WhenUserIsUnconfirmed_ShouldRefreshTokenAndQueueEmail()
+  {
+    var (service, userRepository, _, _, notificationService) = BuildAuthService();
+
+    var user = new User
+    {
+      Id = Guid.NewGuid(),
+      FirstName = "John",
+      Email = "user@test.com",
+      IsConfirmed = false
+    };
+
+    userRepository
+      .Setup(r => r.GetByEmailAsync(user.Email))
+      .ReturnsAsync(user);
+
+    userRepository
+      .Setup(r => r.UpdateAsync(user))
+      .Returns(Task.CompletedTask);
+
+    var result = await service.ResendConfirmationEmailAsync(user.Email);
+
+    Assert.Equal("A new confirmation email has been sent.", result);
+    Assert.False(string.IsNullOrWhiteSpace(user.ConfirmationToken));
+    Assert.NotNull(user.TokenExpiresAt);
+    userRepository.Verify(r => r.UpdateAsync(user), Times.Once);
+    notificationService.Verify(n => n.CreateNotificationAsync(
+      user.Id,
+      "Confirm your Comit account",
+      It.Is<string>(body =>
+        body.Contains("/auth/confirm?token=") &&
+        body.Contains(user.ConfirmationToken!)),
+      Domain.Enums.NotificationType.Email),
+      Times.Once);
+  }
+
   private static RegisterRequest BuildRegisterRequest()
   {
     return new RegisterRequest
