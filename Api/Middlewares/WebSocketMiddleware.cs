@@ -1,7 +1,9 @@
 using BookingApp.Application.Intefaces.Services;
-using System.Security.Claims;
-using System.Net;
+using Microsoft.AspNetCore.Connections;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.WebSockets;
+using System.Security.Claims;
 
 namespace BookingApp.Api.Middlewares;
 
@@ -16,7 +18,11 @@ public class WebSocketMiddleware
     _logger = logger;
   }
 
-  public async Task InvokeAsync(HttpContext context, IWebSocketConnectionManager webSocketManager)
+  public async Task InvokeAsync(
+    HttpContext context,
+    IWebSocketConnectionManager webSocketManager,
+    IHostApplicationLifetime applicationLifetime
+  )
   {
     if (context.Request.Path.StartsWithSegments("/api/notification/ws"))
     {
@@ -48,35 +54,60 @@ public class WebSocketMiddleware
           {
             using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
             webSocketManager.AddConnection(userId, webSocket);
-            _logger.LogInformation($"WebSocket connected for user: {userId}");
+            _logger.LogInformation("WebSocket connected for user: {UserId}", userId);
+
+            using var shutdownLinkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+              context.RequestAborted,
+              applicationLifetime.ApplicationStopping
+            );
+            var cancellationToken = shutdownLinkedCts.Token;
 
             var buffer = new byte[1024 * 4];
-            var result = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer),
-                CancellationToken.None
-            );
-
-            while (!result.CloseStatus.HasValue)
+            while (webSocket.State == WebSocketState.Open)
             {
-              result = await webSocket.ReceiveAsync(
-                  new ArraySegment<byte>(buffer),
-                  CancellationToken.None
+              var result = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer),
+                cancellationToken
               );
+
+              if (result.CloseStatus.HasValue)
+              {
+                break;
+              }
             }
 
-            await webSocket.CloseAsync(
-                result.CloseStatus.Value,
-                result.CloseStatusDescription,
+            if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
+            {
+              await webSocket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "Connection closed",
                 CancellationToken.None
-            );
-
-            webSocketManager.RemoveConnection(userId);
-            _logger.LogInformation($"WebSocket disconnected for user: {userId}");
+              );
+            }
+          }
+          catch (OperationCanceledException) when (
+            context.RequestAborted.IsCancellationRequested || applicationLifetime.ApplicationStopping.IsCancellationRequested
+          )
+          {
+            _logger.LogInformation("WebSocket closed during cancellation/shutdown for user: {UserId}", userId);
+          }
+          catch (WebSocketException ex) when (
+            context.RequestAborted.IsCancellationRequested ||
+            applicationLifetime.ApplicationStopping.IsCancellationRequested ||
+            ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely ||
+            ex.InnerException is ConnectionAbortedException
+          )
+          {
+            _logger.LogInformation(ex, "WebSocket closed by remote peer for user: {UserId}", userId);
           }
           catch (Exception ex)
           {
-            _logger.LogError(ex, $"WebSocket error for user: {userId}");
+            _logger.LogError(ex, "WebSocket error for user: {UserId}", userId);
+          }
+          finally
+          {
             webSocketManager.RemoveConnection(userId);
+            _logger.LogInformation("WebSocket disconnected for user: {UserId}", userId);
           }
 
           return;
