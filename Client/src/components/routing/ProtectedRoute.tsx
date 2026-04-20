@@ -2,31 +2,45 @@ import { useEffect, useRef } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useRoleAccess } from "../../hooks/useRoleAccess";
 
-function ProtectedRoute() {
+type RequiredAccess = "authenticated" | "host";
+
+interface ProtectedRouteProps {
+  requiredAccess?: RequiredAccess;
+}
+
+function ProtectedRoute({ requiredAccess = "authenticated" }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
+  const { hasHostAccess, isPropertiesLoading } = useRoleAccess();
   const location = useLocation();
   const { addToast } = useToast();
   const hasShownToastRef = useRef(false);
 
+  const hasRequiredAccess = requiredAccess === "host" ? hasHostAccess : isAuthenticated;
+  const redirectPath = requiredAccess === "host" ? "/" : "/auth/login";
+  const toastMessage = requiredAccess === "host"
+    ? "Host access is required to open this page"
+    : "Need to be logged in to access this page";
+
   useEffect(() => {
-    if (isLoading || isAuthenticated) {
+    if (isLoading || isPropertiesLoading || hasRequiredAccess) {
       hasShownToastRef.current = false;
       return;
     }
 
     if (!hasShownToastRef.current) {
-      addToast("warning", "Need to be logged in to access this page");
+      addToast("warning", toastMessage);
       hasShownToastRef.current = true;
     }
-  }, [addToast, isAuthenticated, isLoading]);
+  }, [addToast, hasRequiredAccess, isLoading, isPropertiesLoading, toastMessage]);
 
-  if (isLoading) {
+  if (isLoading || isPropertiesLoading) {
     return null;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace state={{ from: location }} />;
+  if (!hasRequiredAccess) {
+    return <Navigate to={redirectPath} replace state={{ from: location }} />;
   }
 
   return <Outlet />;

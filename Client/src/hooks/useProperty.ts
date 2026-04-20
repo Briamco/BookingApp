@@ -7,16 +7,23 @@ export const useProperty = () => {
   const { addToast } = useToast();
 
   const [properties, setProperties] = useState<Property[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchProperties = useCallback(async (location?: string, maxPrice?: number, minCapcity?: number, startDate?: Date, endDate?: Date) => {
-    const response = await PropertyService.getAll(location, maxPrice, minCapcity, startDate, endDate)
+    setIsLoading(true)
 
-    if (response)
-      setProperties(response || [])
+    try {
+      const response = await PropertyService.getAll(location, maxPrice, minCapcity, startDate, endDate)
+
+      if (response)
+        setProperties(response || [])
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    fetchProperties()
+    void fetchProperties()
   }, [fetchProperties])
 
   const getPropertyById = useCallback(async (id: number) => {
@@ -78,6 +85,7 @@ export const useProperty = () => {
 
   return {
     properties,
+    isLoading,
     getPropertyById,
     createProperty,
     fetchProperties,

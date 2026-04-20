@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import type { User } from "../../types";
+import { useRoleAccess } from "../../hooks/useRoleAccess";
 
 interface UserDropDownProps {
   user: User;
@@ -8,6 +9,7 @@ interface UserDropDownProps {
 
 function UserDropDown({ user }: UserDropDownProps) {
   const { logout } = useAuth();
+  const { hasHostAccess } = useRoleAccess();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,15 +29,9 @@ function UserDropDown({ user }: UserDropDownProps) {
       >
         <li>
           <a className="justify-between">
-            Profile
-            <span className="badge badge-info">New</span>
+            Guest area
+            <span className="badge badge-info">Active</span>
           </a>
-        </li>
-        <li>
-          <Link to="/my-properties">My Properties</Link>
-        </li>
-        <li>
-          <Link to="/host-reservations">Host Reservations</Link>
         </li>
         <li>
           <Link to="/my-reservations">My Reservations</Link>
@@ -43,6 +39,22 @@ function UserDropDown({ user }: UserDropDownProps) {
         <li>
           <Link to="/my-notifications">My Notifications</Link>
         </li>
+        {hasHostAccess && (
+          <>
+            <li className="mt-2">
+              <a className="justify-between">
+                Host area
+                <span className="badge badge-primary">Active</span>
+              </a>
+            </li>
+            <li>
+              <Link to="/my-properties">My Properties</Link>
+            </li>
+            <li>
+              <Link to="/host-reservations">Host Reservations</Link>
+            </li>
+          </>
+        )}
         <li>
           <button
             className="text-error"

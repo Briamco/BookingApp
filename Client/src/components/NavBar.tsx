@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Bell, Search, Calendar as CalendarIcon, Plus, Minus } from "lucide-react";
@@ -43,12 +43,12 @@ function NavBar() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const guestRef = useRef<HTMLDivElement>(null);
 
-  const hasPublishedProperties = useMemo(() => {
+  const hasPublishedProperties = (() => {
     if (!user) return false;
 
     const currentUserId = user.id.toLowerCase();
     return properties.some((property) => property.hostId.toLowerCase() === currentUserId);
-  }, [properties, user]);
+  })();
 
   useEffect(() => {
     setDestination(searchParams.get("location") ?? "");

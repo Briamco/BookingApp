@@ -12,6 +12,7 @@ import MyReservationsPage from "./pages/MyReservationsPage";
 import MyNotificationsPage from "./pages/MyNotificationsPage";
 import HostReservationsPage from "./pages/HostReservationsPage";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
+import HostProtectedRoute from "./components/routing/HostProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -21,10 +22,15 @@ export const router = createBrowserRouter([
       { path: "", Component: MainPage },
       { path: "property/:id", Component: PropertyPage },
       {
-        Component: ProtectedRoute,
+        Component: HostProtectedRoute,
         children: [
           { path: "my-properties", Component: MyPropertiesPage },
-          { path: "host-reservations", Component: HostReservationsPage },
+          { path: "host-reservations", Component: HostReservationsPage }
+        ]
+      },
+      {
+        Component: ProtectedRoute,
+        children: [
           { path: "my-reservations", Component: MyReservationsPage },
           { path: "my-notifications", Component: MyNotificationsPage }
         ]
