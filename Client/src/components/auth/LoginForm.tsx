@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { authService } from "../../services/AuthService";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
@@ -9,11 +9,20 @@ function LoginForm() {
   const { addToast } = useToast();
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+  const fromLocation = (location.state as {
+    from?: { pathname?: string; search?: string; hash?: string }
+  } | null)?.from;
+
+  const redirectTo = fromLocation?.pathname
+    ? `${fromLocation.pathname}${fromLocation.search ?? ""}${fromLocation.hash ?? ""}`
+    : "/";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +34,7 @@ function LoginForm() {
       login(response.token, response.user)
 
       addToast('success', 'Logged in successfully')
-      navigate('/')
+      navigate(redirectTo.startsWith('/auth') ? '/' : redirectTo, { replace: true })
     } catch (error: any) {
       addToast('error', error.response?.data || 'Login failed')
     } finally {

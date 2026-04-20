@@ -11,6 +11,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import MyReservationsPage from "./pages/MyReservationsPage";
 import MyNotificationsPage from "./pages/MyNotificationsPage";
 import HostReservationsPage from "./pages/HostReservationsPage";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -18,16 +19,26 @@ export const router = createBrowserRouter([
     Component: PageLayout,
     children: [
       { path: "", Component: MainPage },
-      { path: "my-properties", Component: MyPropertiesPage },
-      { path: "host-reservations", Component: HostReservationsPage },
       { path: "property/:id", Component: PropertyPage },
-      { path: "my-reservations", Component: MyReservationsPage },
-      { path: "my-notifications", Component: MyNotificationsPage }
+      {
+        Component: ProtectedRoute,
+        children: [
+          { path: "my-properties", Component: MyPropertiesPage },
+          { path: "host-reservations", Component: HostReservationsPage },
+          { path: "my-reservations", Component: MyReservationsPage },
+          { path: "my-notifications", Component: MyNotificationsPage }
+        ]
+      }
     ]
   },
   {
-    path: "/checkout",
-    Component: CheckoutPage
+    Component: ProtectedRoute,
+    children: [
+      {
+        path: "/checkout",
+        Component: CheckoutPage
+      }
+    ]
   },
   {
     path: "auth",
