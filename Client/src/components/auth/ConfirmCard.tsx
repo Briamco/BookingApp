@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import { CheckCircle2, CircleAlert, Loader2 } from "lucide-react";
 import { authService } from "../../services/AuthService";
 
 function ConfirmCard() {
@@ -8,6 +9,14 @@ function ConfirmCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [message, setMessage] = useState("Confirming your email...");
+
+  const statusTitle = isLoading
+    ? "Confirming your email"
+    : isSuccess
+      ? "Email confirmed"
+      : "Confirmation failed";
+
+  const statusTone = isLoading ? "status-info" : isSuccess ? "status-success" : "status-error";
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -40,16 +49,49 @@ function ConfirmCard() {
   }, [searchParams]);
 
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body items-center text-center">
-        <h2 className="card-title">
-          {isLoading ? "Confirming your email" : isSuccess ? "Email confirmed" : "Confirmation failed"}
-        </h2>
-        <p>{message}</p>
-        <div className="card-actions">
-          <Link to="/auth/login" className="btn btn-primary" aria-disabled={isLoading}>
+    <div className="card card-xl w-full max-w-md border border-base-300 bg-base-100 shadow-lg">
+      <div className="card-body items-center gap-4 p-8 text-center">
+        <div
+          className={`flex h-16 w-16 items-center justify-center rounded-full border ${isLoading
+              ? "border-info/30 bg-info/10"
+              : isSuccess
+                ? "border-success/30 bg-success/10"
+                : "border-error/30 bg-error/10"
+            }`}
+          aria-hidden="true"
+        >
+          {isLoading ? (
+            <Loader2 className="h-8 w-8 animate-spin text-info" />
+          ) : isSuccess ? (
+            <CheckCircle2 className="h-8 w-8 text-success" />
+          ) : (
+            <CircleAlert className="h-8 w-8 text-error" />
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold tracking-tight">{statusTitle}</h2>
+          <p className="text-sm text-base-content/70">{message}</p>
+        </div>
+
+        <div className={`badge badge-outline ${statusTone}`}>
+          {isLoading ? "Waiting for server response" : isSuccess ? "Ready to sign in" : "Action required"}
+        </div>
+
+        <div className="card-actions mt-2 w-full">
+          <Link
+            to="/auth/login"
+            className={`btn btn-primary w-full ${isLoading ? "pointer-events-none btn-disabled" : ""}`}
+            aria-disabled={isLoading}
+          >
             Go to Login
           </Link>
+
+          {!isSuccess && !isLoading ? (
+            <Link to="/auth/register" className="btn btn-ghost w-full">
+              Create a new account
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>
