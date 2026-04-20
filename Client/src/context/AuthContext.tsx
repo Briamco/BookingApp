@@ -11,7 +11,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function decodeJwtPayload(token: string): { exp?: number } | null {
+type JwtPayload = {
+  sub?: string;
+  email?: string;
+  given_name?: string;
+  family_name?: string;
+  phone_number?: string;
+  is_confirmed?: boolean | string;
+  exp?: number;
+};
+
+function decodeJwtPayload(token: string): JwtPayload | null {
   try {
     const payload = token.split(".")[1];
     if (!payload) return null;
@@ -20,12 +30,33 @@ function decodeJwtPayload(token: string): { exp?: number } | null {
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
     const decoded = atob(padded);
 
-    console.log("Decoded JWT payload:", decoded);
-
-    return JSON.parse(decoded) as { exp?: number };
+    return JSON.parse(decoded) as JwtPayload;
   } catch {
     return null;
   }
+}
+
+function parseBoolean(value: JwtPayload["is_confirmed"]): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value.toLowerCase() === "true";
+  return false;
+}
+
+function getUserFromToken(token: string): User | null {
+  const payload = decodeJwtPayload(token);
+
+  if (!payload?.sub || !payload.email) {
+    return null;
+  }
+
+  return {
+    id: payload.sub,
+    firstName: payload.given_name || "",
+    lastName: payload.family_name || "",
+    email: payload.email,
+    phone: payload.phone_number || "",
+    isConfirmed: parseBoolean(payload.is_confirmed),
+  };
 }
 
 function isTokenExpired(token: string): boolean {
@@ -46,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user_data");
 
     if (!token || isTokenExpired(token)) {
       localStorage.removeItem("token");
@@ -57,14 +87,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    const userFromToken = getUserFromToken(token);
+
     setIsAuthenticated(true);
 
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch {
-        localStorage.removeItem("user_data");
-        setUser(null);
+    if (userFromToken) {
+      setUser(userFromToken);
+      localStorage.setItem("user_data", JSON.stringify(userFromToken));
+    } else {
+      const userData = localStorage.getItem("user_data");
+
+      if (userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch {
+          localStorage.removeItem("user_data");
+          setUser(null);
+        }
       }
     }
 
@@ -72,9 +111,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (token: string, userData: User) => {
+    const userFromToken = getUserFromToken(token);
+    const authenticatedUser = userFromToken ?? userData;
+
     localStorage.setItem("token", token);
-    localStorage.setItem("user_data", JSON.stringify(userData));
-    setUser(userData);
+    localStorage.setItem("user_data", JSON.stringify(authenticatedUser));
+    setUser(authenticatedUser);
     setIsAuthenticated(true);
   };
 

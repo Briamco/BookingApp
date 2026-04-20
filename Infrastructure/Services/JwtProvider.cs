@@ -29,8 +29,13 @@ public class JwtProvider : IJwtProvider
 
     var claims = new[]
     {
+      new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
       new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
       new Claim(JwtRegisteredClaimNames.Email, user.Email),
+      new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
+      new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
+      new Claim(JwtRegisteredClaimNames.PhoneNumber, user.Phone ?? string.Empty),
+      new Claim("is_confirmed", user.IsConfirmed.ToString().ToLowerInvariant()),
       new Claim(System.Security.Claims.ClaimTypes.Role, "Host"),
       new Claim(System.Security.Claims.ClaimTypes.Role, "Guest"),
       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

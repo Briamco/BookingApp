@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using BookingApp.Domain.Entities;
 using BookingApp.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +18,15 @@ public class JwtProviderTests
 
     var provider = new JwtProvider(configuration.Object);
 
-    var user = new User { Id = Guid.NewGuid(), Email = "user@test.com" };
+    var user = new User
+    {
+      Id = Guid.NewGuid(),
+      Email = "user@test.com",
+      FirstName = "John",
+      LastName = "Doe",
+      Phone = "809-555-1234",
+      IsConfirmed = true
+    };
 
     Assert.Throws<InvalidOperationException>(() => provider.GenerateToken(user));
   }
@@ -31,7 +40,15 @@ public class JwtProviderTests
 
     var provider = new JwtProvider(configuration.Object);
 
-    var user = new User { Id = Guid.NewGuid(), Email = "user@test.com" };
+    var user = new User
+    {
+      Id = Guid.NewGuid(),
+      Email = "user@test.com",
+      FirstName = "John",
+      LastName = "Doe",
+      Phone = "809-555-1234",
+      IsConfirmed = true
+    };
 
     var token = provider.GenerateToken(user);
 
@@ -41,7 +58,12 @@ public class JwtProviderTests
     Assert.Equal("booking-app", jwt.Issuer);
     Assert.Contains(jwt.Audiences, a => a == "booking-app");
     Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == user.Id.ToString());
+    Assert.Contains(jwt.Claims, c => c.Type == ClaimTypes.NameIdentifier && c.Value == user.Id.ToString());
     Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email);
+    Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.GivenName && c.Value == user.FirstName);
+    Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.FamilyName && c.Value == user.LastName);
+    Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.PhoneNumber && c.Value == user.Phone);
+    Assert.Contains(jwt.Claims, c => c.Type == "is_confirmed" && c.Value == "true");
     Assert.Contains(jwt.Claims, c => c.Type == JwtRegisteredClaimNames.Jti && !string.IsNullOrWhiteSpace(c.Value));
   }
 }

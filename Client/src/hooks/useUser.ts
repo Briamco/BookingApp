@@ -1,12 +1,7 @@
-import { useEffect, useState } from "react"
-import type { User } from "../types"
+import { useAuth } from "../context/AuthContext"
 
 export const useUser = () => {
-  const [user, setUser] = useState<User | null>(null)
-
-  useEffect(() => {
-    setUser(localStorage.getItem("user_data") ? JSON.parse(localStorage.getItem("user_data") as string) : null)
-  }, [])
+  const { user } = useAuth()
 
   return {
     user
