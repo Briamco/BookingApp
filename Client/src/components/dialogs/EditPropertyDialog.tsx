@@ -204,23 +204,50 @@ function EditPropertyDialog({
           />
 
           <div className="grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              className="input input-bordered"
-              placeholder="Night price"
-              value={Number(form.nightPrice)}
-              onChange={(e) => updateField("nightPrice", Number(e.target.value))}
-              disabled={isSaving}
-            />
-            <input
-              type="number"
-              className="input input-bordered"
-              placeholder="Capacity"
-              value={Number(form.capacity)}
-              onChange={(e) => updateField("capacity", Number(e.target.value))}
-              disabled={isSaving}
-            />
+            <div className="space-y-1">
+              <label htmlFor="create-property-night-price" className="text-sm font-medium">
+                Night price
+              </label>
+              <input
+                id="create-property-night-price"
+                type="number"
+                className="input input-bordered w-full"
+                placeholder="Night price"
+                value={form.nightPrice}
+                onChange={(e) => updateField("nightPrice", Number(e.target.value))}
+                disabled={isSaving}
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="create-property-capacity" className="text-sm font-medium">
+                Capacity
+              </label>
+              <input
+                id="create-property-capacity"
+                type="number"
+                className="input input-bordered w-full"
+                placeholder="Capacity"
+                value={form.capacity}
+                onChange={(e) => updateField("capacity", Number(e.target.value))}
+                disabled={isSaving}
+              />
+            </div>
           </div>
+
+          <LocationPickerMap
+            latitude={Number(form.latitude)}
+            longitude={Number(form.longitude)}
+            onLocationChange={(latitude, longitude, details) => {
+              updateField("latitude", latitude);
+              updateField("longitude", longitude);
+              if (details) {
+                updateField("city", details.city);
+                updateField("state", details.state);
+                updateField("country", details.country);
+              }
+            }}
+            disabled={isSaving}
+          />
 
           <div className="grid grid-cols-2 gap-2">
             <input
@@ -239,21 +266,6 @@ function EditPropertyDialog({
             />
           </div>
 
-          <LocationPickerMap
-            latitude={Number(form.latitude)}
-            longitude={Number(form.longitude)}
-            onLocationChange={(latitude, longitude, details) => {
-              updateField("latitude", latitude);
-              updateField("longitude", longitude);
-              if (details) {
-                updateField("city", details.city);
-                updateField("state", details.state);
-                updateField("country", details.country);
-              }
-            }}
-            disabled={isSaving}
-          />
-
           <input
             className="input input-bordered w-full"
             placeholder="Country"
@@ -261,25 +273,6 @@ function EditPropertyDialog({
             onChange={(e) => updateField("country", e.target.value)}
             disabled={isSaving}
           />
-
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              className="input input-bordered"
-              placeholder="Latitude"
-              value={form.latitude}
-              onChange={(e) => updateField("latitude", Number(e.target.value))}
-              disabled={isSaving}
-            />
-            <input
-              type="number"
-              className="input input-bordered"
-              placeholder="Longitude"
-              value={form.longitude}
-              onChange={(e) => updateField("longitude", Number(e.target.value))}
-              disabled={isSaving}
-            />
-          </div>
 
           <div className="space-y-2">
             <p className="text-sm font-medium">Current image order</p>
