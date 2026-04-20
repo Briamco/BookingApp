@@ -1,5 +1,5 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps"
-import { StarIcon } from "lucide-react"
+import { List, MapIcon, StarIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import PropertyCard from "../components/PropertyCard"
@@ -32,6 +32,8 @@ function MainPage() {
   const [searchParams] = useSearchParams();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
+  const [showMap, setShowMap] = useState(false); // Mobile map toggle
+
   const location = searchParams.get("location");
   const guests = searchParams.get("guests") ?? searchParams.get("minCapcity");
   const hasFilters = Boolean(location || guests || searchParams.get("startDate") || searchParams.get("endDate"));
@@ -48,7 +50,8 @@ function MainPage() {
 
   return (
     <main className="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] xl:gap-8">
-      <section className="min-w-0 space-y-6">
+      {/* Property List Section */}
+      <section className={`min-w-0 space-y-6 ${showMap ? 'hidden lg:block' : 'block'}`}>
         <header className="relative overflow-hidden rounded-4xl border border-base-300 bg-linear-to-br from-base-100 via-base-100 to-base-200 p-6 shadow-lg sm:p-8">
           <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-info/15 blur-3xl" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-36 w-36 rounded-full bg-primary/10 blur-2xl" />
@@ -60,7 +63,7 @@ function MainPage() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Find your next destination</h1>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-4xl">Find your next destination</h1>
               <p className="text-sm text-base-content/70 sm:text-base">
                 {properties.length} stay{properties.length === 1 ? "" : "s"} available
                 {location ? ` in ${location}` : " right now"}.
@@ -68,8 +71,8 @@ function MainPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {location ? <span className="badge badge-secondary badge-outline">Location: {location}</span> : null}
-              {guests ? <span className="badge badge-secondary badge-outline">Guests: {guests}</span> : null}
+              {location ? <span className="badge badge-secondary badge-outline text-[10px] sm:text-xs">Location: {location}</span> : null}
+              {guests ? <span className="badge badge-secondary badge-outline text-[10px] sm:text-xs">Guests: {guests}</span> : null}
             </div>
           </div>
         </header>
@@ -92,8 +95,9 @@ function MainPage() {
         )}
       </section>
 
-      <section className="lg:sticky lg:top-6 lg:h-[calc(100vh-8.5rem)]">
-        <div className="h-112 overflow-hidden rounded-4xl border border-base-300 bg-base-100 shadow-2xl sm:h-136 lg:h-full">
+      {/* Map Section */}
+      <section className={`lg:sticky lg:top-24 lg:h-[calc(100vh-12rem)] ${showMap ? 'block fixed inset-0 z-30 lg:relative lg:inset-auto' : 'hidden lg:block'}`}>
+        <div className="h-full w-full overflow-hidden lg:rounded-4xl border border-base-300 bg-base-100 shadow-2xl">
           <PropertyMap>
             {properties.map((property) => {
               const isSelected = selectedPropertyId === property.id;
@@ -111,13 +115,13 @@ function MainPage() {
                   <div className="flex flex-col items-center gap-2">
                     {isSelected && (
                       <div
-                        className="animate-map-popup-in w-72 cursor-pointer overflow-hidden rounded-3xl border border-base-300 bg-base-100 text-left shadow-2xl"
+                        className="animate-map-popup-in w-64 sm:w-72 cursor-pointer overflow-hidden rounded-3xl border border-base-300 bg-base-100 text-left shadow-2xl"
                         onClick={(event) => {
                           event.stopPropagation();
                           navigate(`/property/${property.id}`);
                         }}
                       >
-                        <div className="relative h-32 w-full overflow-hidden bg-base-200">
+                        <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-base-200">
                           {mainImage ? (
                             <img
                               src={mainImage}
@@ -140,13 +144,13 @@ function MainPage() {
                           </div>
                         </div>
 
-                        <div className="space-y-2 p-3">
+                        <div className="space-y-1.5 p-3">
                           <p className="line-clamp-1 text-sm font-semibold leading-snug">{property.title}</p>
                           <p className="line-clamp-2 text-xs leading-snug text-base-content/70">{shortDescription}</p>
 
                           <div className="flex items-center justify-between border-t border-base-300 pt-2">
-                            <p className="text-xs font-medium text-primary">From ${property.nightPrice} USD / night</p>
-                            <span className="text-[11px] font-medium text-base-content/60">View details</span>
+                            <p className="text-xs font-bold text-primary">${property.nightPrice} USD</p>
+                            <span className="text-[10px] font-medium text-base-content/60">Details</span>
                           </div>
                         </div>
                       </div>
@@ -171,6 +175,24 @@ function MainPage() {
           </PropertyMap>
         </div>
       </section>
+
+      {/* Floating Toggle Button (Mobile only) */}
+      <button
+        onClick={() => setShowMap(!showMap)}
+        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 btn btn-neutral rounded-full shadow-2xl lg:hidden flex items-center gap-2 px-6"
+      >
+        {showMap ? (
+          <>
+            <span className="font-semibold">Show list</span>
+            <List className="h-5 w-5" />
+          </>
+        ) : (
+          <>
+            <span className="font-semibold">Show map</span>
+            <MapIcon className="h-5 w-5" />
+          </>
+        )}
+      </button>
     </main>
   )
 }
