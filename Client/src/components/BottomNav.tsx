@@ -1,4 +1,4 @@
-import { Home, Search, Heart, Map as MapIcon, User, Bell, List } from "lucide-react";
+import { Home, Search, User, Bell, List } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
@@ -19,9 +19,8 @@ function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-base-300 bg-base-100 px-2 py-3 md:hidden">
       <Link
         to="/"
-        className={`flex flex-col items-center gap-1 transition-colors ${
-          isActive("/") ? "text-primary font-semibold" : "text-base-content/60"
-        }`}
+        className={`flex flex-col items-center gap-1 transition-colors ${isActive("/") ? "text-primary font-semibold" : "text-base-content/60"
+          }`}
       >
         <Search className="h-6 w-6" />
         <span className="text-[10px]">Explore</span>
@@ -31,18 +30,16 @@ function BottomNav() {
         <>
           <Link
             to="/my-reservations"
-            className={`flex flex-col items-center gap-1 transition-colors ${
-              isActive("/my-reservations") ? "text-primary font-semibold" : "text-base-content/60"
-            }`}
+            className={`flex flex-col items-center gap-1 transition-colors ${isActive("/my-reservations") ? "text-primary font-semibold" : "text-base-content/60"
+              }`}
           >
             <List className="h-6 w-6" />
             <span className="text-[10px]">Trips</span>
           </Link>
           <Link
             to="/my-notifications"
-            className={`flex flex-col items-center gap-1 transition-colors relative ${
-              isActive("/my-notifications") ? "text-primary font-semibold" : "text-base-content/60"
-            }`}
+            className={`flex flex-col items-center gap-1 transition-colors relative ${isActive("/my-notifications") ? "text-primary font-semibold" : "text-base-content/60"
+              }`}
           >
             <div className="relative">
               <Bell className="h-6 w-6" />
@@ -56,9 +53,8 @@ function BottomNav() {
           </Link>
           <Link
             to="/my-properties"
-            className={`flex flex-col items-center gap-1 transition-colors ${
-              isActive("/my-properties") ? "text-primary font-semibold" : "text-base-content/60"
-            }`}
+            className={`flex flex-col items-center gap-1 transition-colors ${isActive("/my-properties") ? "text-primary font-semibold" : "text-base-content/60"
+              }`}
           >
             <Home className="h-6 w-6" />
             <span className="text-[10px]">My Stays</span>
@@ -67,9 +63,8 @@ function BottomNav() {
       ) : (
         <Link
           to="/auth/login"
-          className={`flex flex-col items-center gap-1 transition-colors ${
-            isActive("/auth/login") ? "text-primary font-semibold" : "text-base-content/60"
-          }`}
+          className={`flex flex-col items-center gap-1 transition-colors ${isActive("/auth/login") ? "text-primary font-semibold" : "text-base-content/60"
+            }`}
         >
           <User className="h-6 w-6" />
           <span className="text-[10px]">Log in</span>

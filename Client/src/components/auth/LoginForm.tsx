@@ -36,7 +36,7 @@ function LoginForm() {
       addToast('success', 'Logged in successfully')
       navigate(redirectTo.startsWith('/auth') ? '/' : redirectTo, { replace: true })
     } catch (error: any) {
-      addToast('error', error.response?.data || 'Login failed')
+      addToast('error', error instanceof Error && error.message ? error.message : 'Login failed')
     } finally {
       setIsSubmitting(false)
     }
@@ -117,6 +117,17 @@ function LoginForm() {
             Don't have an account?{" "}
             <Link to="/auth/register" className="link link-primary font-medium" aria-disabled={isSubmitting}>
               Create one
+            </Link>
+          </div>
+
+          <div className="text-center text-sm text-base-content/70">
+            Didn't receive the confirmation email?{" "}
+            <Link
+              to={email ? `/auth/resend-confirmation?email=${encodeURIComponent(email)}` : "/auth/resend-confirmation"}
+              className="link link-primary font-medium"
+              aria-disabled={isSubmitting}
+            >
+              Resend it
             </Link>
           </div>
         </form>

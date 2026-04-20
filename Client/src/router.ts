@@ -4,6 +4,7 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 import ConfirmCard from "./components/auth/ConfirmCard";
+import ResendConfirmationForm from "./components/auth/ResendConfirmationForm";
 import PageLayout from "./components/layouts/PageLayout";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
 import PropertyPage from "./pages/PropertyPage";
@@ -52,7 +53,8 @@ export const router = createBrowserRouter([
     children: [
       { path: "login", Component: LoginForm },
       { path: "register", Component: RegisterForm },
-      { path: "confirm", Component: ConfirmCard }
+      { path: "confirm", Component: ConfirmCard },
+      { path: "resend-confirmation", Component: ResendConfirmationForm }
     ]
   }
 ])

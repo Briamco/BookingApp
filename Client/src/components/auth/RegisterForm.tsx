@@ -47,7 +47,7 @@ function RegisterForm() {
       addToast('success', response.message || 'Registered successfully. Please check your email to confirm your account.')
       navigate('/auth/login')
     } catch (error: any) {
-      addToast('error', error.response?.data || 'Registration failed')
+      addToast('error', error instanceof Error && error.message ? error.message : 'Registration failed')
     } finally {
       setIsSubmitting(false)
     }
@@ -58,7 +58,7 @@ function RegisterForm() {
       <div className="card-body p-6 sm:p-8">
         <div className="mb-2 space-y-1 text-center">
           <h2 className="text-3xl font-semibold tracking-tight">Create your account</h2>
-          <p className="text-sm text-base-content/70">Join BookingApp to start hosting or booking stays.</p>
+          <p className="text-sm text-base-content/70">Join Comit to start hosting or booking stays.</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>

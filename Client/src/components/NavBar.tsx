@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Bell, Search, Calendar as CalendarIcon, Plus, Minus } from "lucide-react";
+import { Bell, Search, Calendar as CalendarIcon, Plus, Minus, MapPinHouse } from "lucide-react";
 import LoginButton from "./auth/LoginButton";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
@@ -157,7 +157,12 @@ function NavBar() {
       <div className="mx-auto flex w-full items-center justify-between gap-4">
         {/* Logo - Hidden on mobile */}
         <div className="shrink-0 hidden md:block">
-          <Link to="/" className="btn btn-ghost text-xl">BookingApp</Link>
+          <Link to="/" className="btn btn-ghost gap-2 text-xl normal-case">
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/15 text-primary">
+              <MapPinHouse className="h-4 w-4" />
+            </span>
+            <span className="font-semibold tracking-tight">Comit</span>
+          </Link>
         </div>
 
         {/* Search Bar - Full on desktop, button-like on mobile */}

@@ -38,7 +38,7 @@ public class GmailEmailService : IEmailService
 
       using var mailMessage = new MailMessage
       {
-        From = new MailAddress(emailOrigen, "BookingApp"),
+        From = new MailAddress(emailOrigen, "Comit"),
         Subject = subject,
         Body = body,
         IsBodyHtml = true
