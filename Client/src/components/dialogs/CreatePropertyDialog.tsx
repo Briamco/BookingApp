@@ -143,9 +143,14 @@ function CreatePropertyDialog({ onCreate }: CreatePropertyDialogProps) {
           <LocationPickerMap
             latitude={Number(form.latitude)}
             longitude={Number(form.longitude)}
-            onLocationChange={(latitude, longitude) => {
+            onLocationChange={(latitude, longitude, details) => {
               updateField("latitude", latitude);
               updateField("longitude", longitude);
+              if (details) {
+                updateField("city", details.city);
+                updateField("state", details.state);
+                updateField("country", details.country);
+              }
             }}
             disabled={isSaving}
           />
