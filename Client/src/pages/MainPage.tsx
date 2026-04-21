@@ -101,7 +101,7 @@ function MainPage() {
           <PropertyMap>
             {properties.map((property) => {
               const isSelected = selectedPropertyId === property.id;
-              const mainImage = property.images[0]?.url;
+              const mainImage = [...property.images].sort((a, b) => a.order - b.order)[0]?.url;
               const shortDescription = property.description.length > 90
                 ? `${property.description.substring(0, 90)}...`
                 : property.description;

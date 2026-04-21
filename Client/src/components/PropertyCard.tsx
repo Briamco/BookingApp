@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Property } from "../types";
 import { ChevronLeft, ChevronRight, StarIcon } from "lucide-react";
 
@@ -12,23 +12,34 @@ interface PropertyCardProps {
 function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: PropertyCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const orderedImages = useMemo(
+    () => [...property.images].sort((a, b) => a.order - b.order),
+    [property.images],
+  );
+
   useEffect(() => {
     setCurrentIndex(0);
   }, [property.id]);
 
-  const hasImages = property.images.length > 0;
+  useEffect(() => {
+    if (currentIndex >= orderedImages.length) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, orderedImages.length]);
+
+  const hasImages = orderedImages.length > 0;
 
   const goToPrevious = () => {
     if (!hasImages) return;
     setCurrentIndex((previousIndex) =>
-      previousIndex === 0 ? property.images.length - 1 : previousIndex - 1,
+      previousIndex === 0 ? orderedImages.length - 1 : previousIndex - 1,
     );
   };
 
   const goToNext = () => {
     if (!hasImages) return;
     setCurrentIndex((previousIndex) =>
-      previousIndex === property.images.length - 1 ? 0 : previousIndex + 1,
+      previousIndex === orderedImages.length - 1 ? 0 : previousIndex + 1,
     );
   };
 
@@ -48,7 +59,7 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
           <div className="carousel-item relative w-full">
             <figure className="flex h-48 sm:h-56 w-full items-center justify-center overflow-hidden">
               <img
-                src={property.images[currentIndex].url}
+                src={orderedImages[currentIndex].url}
                 alt={`${property.title}-${currentIndex}`}
                 className="h-full w-full object-cover transition-transform duration-500 md:group-hover:scale-105"
               />
@@ -88,9 +99,9 @@ function PropertyCard({ property, onClick, canBlockDates, onBlockDates }: Proper
               </button>
             </div>
 
-            {property.images.length > 1 ? (
+            {orderedImages.length > 1 ? (
               <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-base-100/80 px-2 py-1 backdrop-blur">
-                {property.images.map((image, index) => (
+                {orderedImages.map((image, index) => (
                   <span
                     key={image.id}
                     className={`h-1.5 rounded-full transition-all ${index === currentIndex ? "w-4 bg-primary" : "w-1.5 bg-base-content/40"}`}

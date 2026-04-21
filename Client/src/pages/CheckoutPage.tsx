@@ -132,6 +132,9 @@ function CheckoutPage() {
   };
 
   const totalPrice = nights > 0 ? property.nightPrice * nights : property.nightPrice;
+  const orderedImages = [...property.images].sort((a, b) => a.order - b.order);
+  const mainImage = orderedImages[0];
+  const previewImages = orderedImages.slice(1, 4);
 
   return (
     <div className="relative min-h-screen bg-base-200">
@@ -183,13 +186,19 @@ function CheckoutPage() {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl md:rounded-3xl border-base-300 bg-base-300 shadow-lg space-y-1 md:space-y-2 border-4 md:border-10">
-                  <img
-                    src={property.images[0].url}
-                    alt={`${property.title}-${property.images[0].order}`}
-                    className="h-40 w-full object-cover sm:h-64"
-                  />
+                  {mainImage ? (
+                    <img
+                      src={mainImage.url}
+                      alt={`${property.title}-${mainImage.order}`}
+                      className="h-40 w-full object-cover sm:h-64"
+                    />
+                  ) : (
+                    <div className="grid h-40 w-full place-items-center bg-base-200 text-sm text-base-content/60 sm:h-64">
+                      No image available
+                    </div>
+                  )}
                   <div className="grid grid-cols-3 gap-1 md:gap-2">
-                    {property.images.slice(1, 4).map((image) => (
+                    {previewImages.map((image) => (
                       <img
                         key={image.id}
                         src={image.url}

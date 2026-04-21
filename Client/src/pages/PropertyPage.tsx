@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from "react-router";
 import { useProperty } from "../hooks/useProperty";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DateRange, PropertyDatail, PublicUser } from "../types";
 import { AirVent, BookMarked, Car, CookingPot, Home, PhoneCall, Star, Tv2, UserIcon, Wifi } from "lucide-react";
 import CalenderRange from "../components/CalenderRange";
@@ -28,6 +28,17 @@ function PropertyPage() {
   ) ?? [];
 
   const bookingBlockedRanges = [...activeReservationRanges, ...((property?.blockedDates) ?? [])];
+
+  const orderedImages = useMemo(() => {
+    if (!property?.images) {
+      return [];
+    }
+
+    return [...property.images].sort((a, b) => a.order - b.order);
+  }, [property?.images]);
+
+  const mainImage = orderedImages[0];
+  const galleryImages = orderedImages.slice(1, 5);
 
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
@@ -161,15 +172,21 @@ function PropertyPage() {
         <div className="flex overflow-x-auto snap-x snap-mandatory md:grid md:gap-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           {/* Main Image */}
           <div className="min-w-full snap-center md:min-w-0">
-            <img
-              src={property.images[0].url}
-              alt={`${property.title} - ${property.images[0].order}`}
-              className="object-cover w-full h-72 sm:h-96 md:h-102 lg:h-130"
-            />
+            {mainImage ? (
+              <img
+                src={mainImage.url}
+                alt={`${property.title} - ${mainImage.order}`}
+                className="object-cover w-full h-72 sm:h-96 md:h-102 lg:h-130"
+              />
+            ) : (
+              <div className="flex h-72 w-full items-center justify-center bg-base-200 text-sm text-base-content/60 sm:h-96 md:h-102 lg:h-130">
+                No images available
+              </div>
+            )}
           </div>
           {/* Secondary Images - Hidden on very small screens or shown in scroll */}
           <div className="hidden md:grid grid-cols-2 gap-2">
-            {property.images.slice(1, 5).map((image) => (
+            {galleryImages.map((image) => (
               <img
                 key={image.id}
                 src={image.url}
@@ -179,7 +196,7 @@ function PropertyPage() {
             ))}
           </div>
           {/* Mobile extra images in scroll */}
-          {property.images.slice(1, 5).map((image) => (
+          {galleryImages.map((image) => (
             <div key={image.id} className="min-w-full snap-center md:hidden">
               <img
                 src={image.url}
