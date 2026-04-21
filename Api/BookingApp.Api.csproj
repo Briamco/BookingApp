@@ -24,4 +24,17 @@
     <ProjectReference Include="..\Infrastructure\BookingApp.Infreastructure.csproj" />
   </ItemGroup>
 
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('Client\node_modules') ">
+    <Exec Command="npm install" WorkingDirectory="..\Client" />
+  </Target>
+
+  <Target Name="PublishRunWebpack" BeforeTargets="Build">
+    <Exec Command="npm run build" WorkingDirectory="..\Client" />
+
+    <ItemGroup>
+      <DistFiles Include="..\Client\dist\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DistFiles)" DestinationFolder="wwwroot\%(RecursiveDir)" />
+  </Target>
+
 </Project>
