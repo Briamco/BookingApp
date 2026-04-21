@@ -54,9 +54,9 @@ Variables recomendadas:
 ```env
 DB_CONNECTION_STRING=Server=localhost,1433;Database=BookingDb;User Id=sa;Password=TU_PASSWORD;TrustServerCertificate=True;MultipleActiveResultSets=true;
 JWT_SECRET=REEMPLAZAR_CON_UN_SECRETO_LARGO_Y_ALEATORIO
-JWT_ISSUER=BookingApp
+JWT_ISSUER=Comit
 RESEND_API_KEY=TU_RESEND_API_KEY
-RESEND_FROM_EMAIL=BookingApp <onboarding@resend.dev>
+RESEND_FROM_EMAIL=Comit <onboarding@resend.dev>
 FRONTEND_URL=http://localhost:5173
 SMTP_EMAIL=tu_correo@gmail.com
 SMTP_PASSWORD=tu_app_password
@@ -89,6 +89,17 @@ Notas:
 
 ## Como Ejecutar (Desarrollo)
 
+Este repositorio fija el SDK de .NET con `global.json` (10.0.105).
+
+Si usas Linux/WSL y tu instalacion de .NET del sistema presenta errores de targeting packs (por ejemplo `NETSDK1226`), prioriza un SDK local completo en `~/.dotnet` antes de ejecutar comandos:
+
+```bash
+export PATH="$HOME/.dotnet:$PATH"
+export DOTNET_ROOT="$HOME/.dotnet"
+source ~/.bashrc
+dotnet --info
+```
+
 ### 1) Restaurar dependencias backend
 
 Desde la raiz:
@@ -98,6 +109,14 @@ dotnet restore BookingApp.slnx
 ```
 
 ### 2) Levantar API
+
+Nota importante: al hacer build/run de la API, el proyecto ejecuta automaticamente build del frontend y sincroniza `Client/dist` en `Api/wwwroot`.
+
+- En Debug, si no existe `Client/node_modules`, ejecuta `npm install`.
+- Luego ejecuta `npm run build` en `Client`.
+- Copia los archivos generados a `Api/wwwroot`.
+
+Por eso, la primera compilacion de la API puede tardar mas (instalacion/build del cliente).
 
 ```bash
 dotnet run --project Api/BookingApp.Api.csproj
@@ -157,6 +176,7 @@ Base URL: `/api`
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/confirm`
+- `POST /auth/resend-confirmation`
 - `GET /auth/me`
 - `GET /auth/{id:guid}/public`
 
@@ -220,19 +240,23 @@ Referencias utiles dentro del repo:
 
 ## Build de Frontend para Servir desde API
 
-Si quieres servir SPA desde ASP.NET (archivos estaticos), construye el cliente y copia `Client/dist` a `Api/wwwroot`.
+Este flujo ya esta automatizado dentro de `Api/BookingApp.Api.csproj`.
 
-```bash
-cd Client
-npm run build
-```
+Cada vez que compilas/ejecutas la API:
 
-Luego publica/corre la API con esos estaticos en `wwwroot`.
+- Se construye el frontend (`npm run build` en `Client`).
+- Se copian los artefactos de `Client/dist` a `Api/wwwroot`.
+
+Si quieres forzar regeneracion manual del frontend, puedes hacerlo igual desde `Client`, pero no es obligatorio para que la API sirva la SPA.
 
 ## Troubleshooting Rapido
 
 - Error de JWT al iniciar API:
   - Revisa `JWT_SECRET` y `JWT_ISSUER` en `Api/.env`.
+- Error `NETSDK1226` al ejecutar `dotnet run` o `dotnet test`:
+  - Verifica con `dotnet --info` que la ruta de SDK apunte a una instalacion con packs completos.
+  - Si hay conflicto con instalacion del sistema, usa SDK local en `~/.dotnet` y exporta `PATH` y `DOTNET_ROOT`.
+  - Confirma que `global.json` del repo se respeta (SDK `10.0.105`).
 - Errores de conexion SQL:
   - Valida host/puerto/credenciales en `DB_CONNECTION_STRING`.
 - Frontend no llega al backend:
@@ -248,7 +272,7 @@ Estado actualizado al 20-04-2026.
 
 | Requisito | Backend | Frontend | Estado |
 |---|---|---|---|
-| 1. Gestion de usuarios (registro, login, JWT, confirmacion por correo) | Implementado con bloqueo de usuarios no confirmados y expiracion de token de confirmacion | Flujos de registro, login y confirmacion implementados | Cumple |
+| 1. Gestion de usuarios (registro, login, JWT, confirmacion por correo) | Implementado con bloqueo de usuarios no confirmados, expiracion de token y reenvio de confirmacion (`POST /auth/resend-confirmation`) | Flujos de registro, login, confirmacion y reenvio implementados | Cumple |
 | 2. Roles y control de acceso | Endpoints protegidos por roles Host/Guest y autorizacion JWT | Rutas separadas para host y guest con guards dedicados | Cumple |
 | 3. Gestion de propiedades (Host) | Crear, editar y eliminar propiedades con validacion de ownership | Vistas de gestion de propiedades para host | Cumple |
 | 4. Disponibilidad y busqueda | Filtros por ubicacion, fechas, capacidad y precio; exclusiones por reservas confirmadas y bloqueos | Busqueda con filtros y consumo de resultados disponibles | Cumple |
