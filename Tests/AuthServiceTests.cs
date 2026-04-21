@@ -63,7 +63,7 @@ public class AuthServiceTests
 
     var result = await service.RegisterAsync(request);
 
-    Assert.Equal("User register. Please check your mail for confirm your account.", result);
+    Assert.Equal("User registered. Please check your email to confirm your Comit account.", result);
     Assert.NotNull(addedUser);
     Assert.NotEqual(Guid.Empty, addedUser!.Id);
     Assert.Equal(request.Email, addedUser!.Email);
@@ -73,7 +73,7 @@ public class AuthServiceTests
 
     notificationService.Verify(n => n.CreateNotificationAsync(
       addedUser.Id,
-      "Confirm your account",
+      "Confirm your Comit account",
       It.Is<string>(body =>
         body.Contains("/auth/confirm?token=") &&
         body.Contains(addedUser.ConfirmationToken!)),
