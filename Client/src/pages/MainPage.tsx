@@ -33,6 +33,7 @@ function MainPage() {
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
   const [showMap, setShowMap] = useState(false); // Mobile map toggle
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
   const location = searchParams.get("location");
   const guests = searchParams.get("guests") ?? searchParams.get("minCapcity");
@@ -47,6 +48,26 @@ function MainPage() {
 
     fetchProperties(locationQuery, undefined, minCapacity, startDate, endDate);
   }, [fetchProperties, searchParams]);
+
+  useEffect(() => {
+    if (!("geolocation" in navigator)) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserLocation({ lat: coords.latitude, lng: coords.longitude });
+      },
+      () => {
+        setUserLocation(null);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 5 * 60 * 1000,
+      },
+    );
+  }, []);
 
   return (
     <main className="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(420px,46%)] xl:gap-8">
@@ -98,7 +119,7 @@ function MainPage() {
       {/* Map Section */}
       <section className={`lg:sticky lg:top-24 lg:h-[calc(100vh-12rem)] ${showMap ? 'block fixed inset-0 z-30 lg:relative lg:inset-auto' : 'hidden lg:block'}`}>
         <div className="h-full w-full overflow-hidden lg:rounded-4xl border border-base-300 bg-base-100 shadow-2xl">
-          <PropertyMap>
+          <PropertyMap center={userLocation ?? undefined}>
             {properties.map((property) => {
               const isSelected = selectedPropertyId === property.id;
               const mainImage = [...property.images].sort((a, b) => a.order - b.order)[0]?.url;
